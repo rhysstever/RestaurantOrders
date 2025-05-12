@@ -4,7 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed interface RestaurantDestination {
@@ -25,4 +27,10 @@ data object Add : RestaurantDestination {
     override val route = "Add"
 }
 
-val restaurantTabRowScreens = listOf(Home, Add)
+data object Orders : RestaurantDestination {
+    override val selectedIcon = Icons.Default.Info
+    override val unselectedIcon = Icons.Outlined.Info
+    override val route = "Orders"
+}
+
+val restaurantTabRowScreens = listOf(Home, Add, Orders)

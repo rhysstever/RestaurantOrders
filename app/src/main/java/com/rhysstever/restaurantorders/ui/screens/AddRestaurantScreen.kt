@@ -25,6 +25,7 @@ import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.RestaurantBottomTabRow
 import com.rhysstever.restaurantorders.ui.components.RestaurantTopAppBar
+import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.navigateSingleTopTo
 
 @Composable
@@ -34,28 +35,10 @@ fun AddRestaurantScreen(
 ) {
     val restaurantUIState by restaurantViewModel.uiState.collectAsState()
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            RestaurantTopAppBar(
-                currentScreen = Add,
-                onBack = navController.previousBackStackEntry?.let {
-                    { navController.popBackStack() }
-                },
-            )
-        },
-        bottomBar = {
-            RestaurantBottomTabRow(
-                onTabSelected = { newScreen ->
-                    if(newScreen == Add) {
-                        restaurantViewModel.updateNewRestaurantInput("")
-                    }
-
-                    navController.navigateSingleTopTo(newScreen.route)
-                },
-                currentScreen = Add
-            )
-        }
+    ScreenScaffold(
+        currentScreen = Add,
+        navController = navController,
+        restaurantViewModel = restaurantViewModel
     ) { innerPadding ->
         AddRestaurantScreenContent(
             restaurantName = restaurantViewModel.newRestaurantInput,
@@ -64,7 +47,7 @@ fun AddRestaurantScreen(
                 restaurantViewModel.updateNewRestaurantInput(newRestaurantName)
             },
             onKeyboardDone = { restaurantViewModel.checkNewRestaurantInput() },
-            onAddRestaurant = {
+            onAddNewRestaurant = {
                 restaurantViewModel.addRestaurant()
                 navController.navigateSingleTopTo(Home.route)
             },
@@ -79,7 +62,7 @@ fun AddRestaurantScreenContent(
     isInputInvalid: Boolean?,
     onNewRestaurantInput: (String) -> Unit,
     onKeyboardDone: () -> Unit,
-    onAddRestaurant: () -> Unit,
+    onAddNewRestaurant: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -112,7 +95,7 @@ fun AddRestaurantScreenContent(
         )
 
         Button(
-            onClick = onAddRestaurant,
+            onClick = onAddNewRestaurant,
             enabled = isInputInvalid?.let { !it } ?: false,
         ) {
             Text("Add Restaurant")

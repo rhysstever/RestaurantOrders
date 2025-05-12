@@ -4,7 +4,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.selection.selectable
@@ -18,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.RestaurantDestination
 import com.rhysstever.restaurantorders.restaurantTabRowScreens
@@ -45,6 +48,7 @@ fun RestaurantBottomTabRow(
         Row(
             modifier = Modifier.selectableGroup(),
             horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             allDestinations.forEach { screen ->
                 RestaurantTab(
@@ -92,6 +96,9 @@ fun RestaurantTab(
                 minHeight = 24.dp
             )
         )
-        Text(screen.route)
+        Text(
+            text = screen.route,
+            textAlign = TextAlign.Center
+        )
     }
 }

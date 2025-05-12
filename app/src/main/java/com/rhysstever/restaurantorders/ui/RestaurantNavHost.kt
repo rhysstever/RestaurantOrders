@@ -9,8 +9,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.rhysstever.restaurantorders.Add
 import com.rhysstever.restaurantorders.Home
+import com.rhysstever.restaurantorders.Orders
 import com.rhysstever.restaurantorders.ui.screens.AddRestaurantScreen
 import com.rhysstever.restaurantorders.ui.screens.HomeScreen
+import com.rhysstever.restaurantorders.ui.screens.RestaurantInfoScreen
 
 @Composable
 fun RestaurantNavHost(
@@ -26,14 +28,20 @@ fun RestaurantNavHost(
     ) {
         composable(route = Home.route) {
             HomeScreen(
-                restaurantViewModel = restaurantViewModel,
-                navController = navController
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
             )
         }
         composable(route = Add.route) {
             AddRestaurantScreen(
-                restaurantViewModel = restaurantViewModel,
-                navController = navController
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
+            )
+        }
+        composable(route = Orders.route) {
+            RestaurantInfoScreen(
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
             )
         }
     }
