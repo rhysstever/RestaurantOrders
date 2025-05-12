@@ -11,8 +11,8 @@ import androidx.navigation.NavHostController
 import com.rhysstever.restaurantorders.Add
 import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.RestaurantDestination
+import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
-import com.rhysstever.restaurantorders.ui.navigateSingleTopTo
 
 @Composable
 fun ScreenScaffold(

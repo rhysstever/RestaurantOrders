@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,15 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.rhysstever.restaurantorders.Add
 import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.Orders
+import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.RestaurantBottomTabRow
 import com.rhysstever.restaurantorders.ui.components.RestaurantTopAppBar
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
-import com.rhysstever.restaurantorders.ui.navigateSingleTopTo
 
 @Composable
 fun HomeScreen(

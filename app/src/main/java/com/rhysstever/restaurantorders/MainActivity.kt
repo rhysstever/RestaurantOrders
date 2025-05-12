@@ -5,30 +5,74 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rhysstever.restaurantorders.ui.RestaurantNavHost
-import com.rhysstever.restaurantorders.ui.theme.RestaurantOrdersTheme
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.screens.AddRestaurantScreen
+import com.rhysstever.restaurantorders.ui.screens.HomeScreen
+import com.rhysstever.restaurantorders.ui.screens.RestaurantInfoScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            RestaurantOrdersApp()
+            RestaurantNavHost(navController = rememberNavController())
         }
     }
 }
 
 @Composable
-fun RestaurantOrdersApp() {
-    RestaurantOrdersTheme {
-        val navController = rememberNavController()
-        val currentBackStack by navController.currentBackStackEntryAsState()
-        val currentDestination = currentBackStack?.destination
-        val currentScreen = restaurantTabRowScreens.find { it.route == currentDestination?.route } ?: Home
+fun RestaurantNavHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    val restaurantViewModel: RestaurantViewModel = viewModel()
 
-        RestaurantNavHost(navController = navController)
+    NavHost(
+        navController = navController,
+        startDestination = Home.route,
+        modifier = modifier
+    ) {
+        composable(route = Home.route) {
+            HomeScreen(
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
+            )
+        }
+        composable(route = Add.route) {
+            AddRestaurantScreen(
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
+            )
+        }
+        composable(route = Orders.route) {
+            RestaurantInfoScreen(
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
+            )
+        }
     }
 }
+
+fun NavHostController.navigateSingleTopTo(route: String) =
+    this.navigate(route) {
+        // Pop up to the start destination of the graph to
+        // avoid building up a large stack of destinations
+        // on the back stack as users select items
+        popUpTo(
+            this@navigateSingleTopTo.graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
+        // Avoid multiple copies of the same destination when
+        // reselecting the same item
+        launchSingleTop = true
+        // Restore state when reselecting a previously selected item
+        restoreState = true
+    }

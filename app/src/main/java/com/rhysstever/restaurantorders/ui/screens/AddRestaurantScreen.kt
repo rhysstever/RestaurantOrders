@@ -1,14 +1,12 @@
 package com.rhysstever.restaurantorders.ui.screens
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,11 +20,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.Add
 import com.rhysstever.restaurantorders.Home
+import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
-import com.rhysstever.restaurantorders.ui.components.RestaurantBottomTabRow
-import com.rhysstever.restaurantorders.ui.components.RestaurantTopAppBar
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
-import com.rhysstever.restaurantorders.ui.navigateSingleTopTo
 
 @Composable
 fun AddRestaurantScreen(
