@@ -8,7 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.rhysstever.restaurantorders.Add
+import com.rhysstever.restaurantorders.AddRestaurant
 import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.RestaurantDestination
 import com.rhysstever.restaurantorders.navigateSingleTopTo
@@ -31,9 +31,9 @@ fun ScreenScaffold(
                 onBack = navController.previousBackStackEntry?.let {
                     { navController.popBackStack() }
                 },
-                onAdd = if(currentScreen != Add) { {
+                onAdd = if(currentScreen != AddRestaurant) { {
                     restaurantViewModel.updateNewRestaurantInput("")
-                    navController.navigateSingleTopTo(Add.route)
+                    navController.navigateSingleTopTo(AddRestaurant.route)
                 } } else {
                     null
                 },
@@ -44,18 +44,6 @@ fun ScreenScaffold(
                 } else {
                     null
                 }
-            )
-        },
-        bottomBar = {
-            RestaurantBottomTabRow(
-                onTabSelected = { newScreen ->
-                    if(newScreen == Add) {
-                        restaurantViewModel.updateNewRestaurantInput("")
-                    }
-
-                    navController.navigateSingleTopTo(newScreen.route)
-                },
-                currentScreen = currentScreen
             )
         }
     ) { innerPadding ->

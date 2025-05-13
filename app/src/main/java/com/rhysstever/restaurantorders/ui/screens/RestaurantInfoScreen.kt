@@ -1,6 +1,5 @@
 package com.rhysstever.restaurantorders.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,12 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
@@ -29,8 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,13 +34,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.rhysstever.restaurantorders.Orders
+import com.rhysstever.restaurantorders.AddOrder
+import com.rhysstever.restaurantorders.RestaurantInfo
+import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
-import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun RestaurantInfoScreen(
@@ -54,7 +51,7 @@ fun RestaurantInfoScreen(
     val restaurantUIState by restaurantViewModel.uiState.collectAsState()
 
     ScreenScaffold(
-        currentScreen = Orders,
+        currentScreen = RestaurantInfo,
         navController = navController,
         restaurantViewModel = restaurantViewModel
     ) { innerPadding ->
@@ -64,14 +61,9 @@ fun RestaurantInfoScreen(
                 onFavoriteClick = { restaurant ->
                     restaurantViewModel.toggleRestaurantIsFavorite(restaurant)
                 },
-                orderName = restaurantViewModel.newOrderInput,
-                isOrderNameInputInvalid = restaurantUIState.isNewOrderInputInvalid,
-                onNewOrderInput = { newOrderName ->
-                    restaurantViewModel.updateNewOrderInput(newOrderName)
-                },
-                onKeyboardDone = { restaurantViewModel.checkNewOrderInput() },
-                onAddNewOrder = { restaurant, order ->
-                    restaurantViewModel.addNewOrder(restaurant, order)
+                onAddNewOrder = {
+                    restaurantViewModel.updateNewOrderInput("")
+                    navController.navigateSingleTopTo(AddOrder.route)
                 },
                 modifier = Modifier.padding(innerPadding)
             )
@@ -85,16 +77,10 @@ fun RestaurantInfoScreen(
 fun RestaurantScreenContent(
     restaurant: Restaurant,
     onFavoriteClick: (Restaurant) -> Unit,
-    orderName: String,
-    isOrderNameInputInvalid: Boolean?,
-    onNewOrderInput: (String) -> Unit,
-    onKeyboardDone: () -> Unit,
-    onAddNewOrder: (Restaurant, Order) -> Unit,
+    onAddNewOrder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isOrderDialogShowing by remember { mutableStateOf(false) }
-
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(16.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,111 +101,38 @@ fun RestaurantScreenContent(
         }
 
         Button(
-            onClick = {
-                onNewOrderInput("")
-                isOrderDialogShowing = true
-            }
-        ) {
-            Text(text = "Add Order")
-        }
+            onClick = onAddNewOrder
+        ) { Text(text = "Add Order") }
 
         Column {
-            restaurant.orders.forEach {
-                OrderListItem(order = it)
-            }
-        }
-
-        AddOrderDialog(
-            isShowing = isOrderDialogShowing,
-            onDismiss = { isOrderDialogShowing = false },
-            restaurant = restaurant,
-            orderName = orderName,
-            isOrderNameInputInvalid = isOrderNameInputInvalid,
-            onNewOrderInput = onNewOrderInput,
-            onKeyboardDone = onKeyboardDone,
-            onAddNewOrder = onAddNewOrder
-        )
-    }
-}
-
-@Composable
-fun AddOrderDialog(
-    isShowing: Boolean,
-    onDismiss: () -> Unit,
-    restaurant: Restaurant,
-    orderName: String,
-    isOrderNameInputInvalid: Boolean?,
-    onNewOrderInput: (String) -> Unit,
-    onKeyboardDone: () -> Unit,
-    onAddNewOrder: (Restaurant, Order) -> Unit,
-) {
-    if(isShowing) {
-        val (notes, onNotesValueChange) = remember { mutableStateOf("") }
-
-        Dialog(
-            onDismissRequest = onDismiss
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Add New Order")
-                OutlinedTextField(
-                    value = orderName,
-                    onValueChange = onNewOrderInput,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        isOrderNameInputInvalid?.let { isInvalid ->
-                            if(isInvalid) {
-                                if(orderName.isBlank()) {
-                                    Text(text = "Invalid Order Name")
-                                } else {
-                                    Text(text = "Order Name Already Exists")
-                                }
-                            } else {
-                                Text(text = "Order Restaurant Name")
-                            }
-                        } ?: Text(text = "Order Restaurant Name")
-                    },
-                    isError = isOrderNameInputInvalid ?: false,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { onKeyboardDone() }
-                    )
-                )
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = onNotesValueChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = "Add any notes") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { onKeyboardDone() }
-                    )
-                )
-                Button(
-                    onClick = {
-                        // Create a new Order object
-                        val newOrder = Order(
-                            name = orderName,
-                            rating = 5, // Default rating
-                            notes = notes
-                        )
-
-                        // Add the new order to the restaurant
-                        onAddNewOrder(restaurant, newOrder)
-
-                        // Close the dialog
-                        onDismiss()
-                    },
-                    enabled = isOrderNameInputInvalid?.let { !it } ?: false,
-                ) {
-                    Text(text = "Add Order")
+            Text("Orders")
+            restaurant.orders.reversed().forEachIndexed { index, order ->
+                // If it is the first order to list or its the first order of a new rating,
+                // show a rating heading
+                if(index == 0 || index > 0 && restaurant.orders.reversed()[index - 1].rating != order.rating) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (order.rating != 1) {
+                            Text("${order.rating} Stars")
+                        } else {
+                            Text("${order.rating} Star")
+                        }
+                        Spacer(modifier = modifier.width(4.dp))
+                        // Display a row of stars for the rating
+                        repeat(order.rating) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "",
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                 }
+                OrderListItem(order = order)
             }
         }
     }

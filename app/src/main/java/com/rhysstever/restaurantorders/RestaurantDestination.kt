@@ -1,36 +1,23 @@
 package com.rhysstever.restaurantorders
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.ui.graphics.vector.ImageVector
-
 sealed interface RestaurantDestination {
-    val selectedIcon: ImageVector
-    val unselectedIcon: ImageVector
     val route: String
 }
 
 data object Home : RestaurantDestination {
-    override val selectedIcon = Icons.Default.Home
-    override val unselectedIcon = Icons.Outlined.Home
     override val route = "Home"
 }
 
-data object Add : RestaurantDestination {
-    override val selectedIcon = Icons.Default.AddCircle
-    override val unselectedIcon = Icons.Default.Add
-    override val route = "Add"
+data object AddRestaurant : RestaurantDestination {
+    override val route = "Add Restaurant"
 }
 
-data object Orders : RestaurantDestination {
-    override val selectedIcon = Icons.Default.Info
-    override val unselectedIcon = Icons.Outlined.Info
-    override val route = "Orders"
+data object RestaurantInfo : RestaurantDestination {
+    override val route = "Restaurant Info"
 }
 
-val restaurantTabRowScreens = listOf(Home, Add, Orders)
+data object AddOrder : RestaurantDestination {
+    override val route = "Add Order"
+}
+
+val restaurantTabRowScreens = listOf(Home, AddRestaurant, RestaurantInfo, AddOrder)

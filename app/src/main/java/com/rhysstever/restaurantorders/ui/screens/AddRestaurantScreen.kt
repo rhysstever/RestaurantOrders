@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.rhysstever.restaurantorders.Add
+import com.rhysstever.restaurantorders.AddRestaurant
 import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
@@ -32,7 +32,7 @@ fun AddRestaurantScreen(
     val restaurantUIState by restaurantViewModel.uiState.collectAsState()
 
     ScreenScaffold(
-        currentScreen = Add,
+        currentScreen = AddRestaurant,
         navController = navController,
         restaurantViewModel = restaurantViewModel
     ) { innerPadding ->

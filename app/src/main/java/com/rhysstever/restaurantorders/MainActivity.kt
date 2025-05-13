@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.screens.AddOrderScreen
 import com.rhysstever.restaurantorders.ui.screens.AddRestaurantScreen
 import com.rhysstever.restaurantorders.ui.screens.HomeScreen
 import com.rhysstever.restaurantorders.ui.screens.RestaurantInfoScreen
@@ -45,14 +46,20 @@ fun RestaurantNavHost(
                 restaurantViewModel = restaurantViewModel
             )
         }
-        composable(route = Add.route) {
+        composable(route = AddRestaurant.route) {
             AddRestaurantScreen(
                 navController = navController,
                 restaurantViewModel = restaurantViewModel
             )
         }
-        composable(route = Orders.route) {
+        composable(route = RestaurantInfo.route) {
             RestaurantInfoScreen(
+                navController = navController,
+                restaurantViewModel = restaurantViewModel
+            )
+        }
+        composable(route = AddOrder.route) {
+            AddOrderScreen(
                 navController = navController,
                 restaurantViewModel = restaurantViewModel
             )

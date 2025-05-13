@@ -27,12 +27,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.Home
-import com.rhysstever.restaurantorders.Orders
+import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
-import com.rhysstever.restaurantorders.ui.components.RestaurantBottomTabRow
-import com.rhysstever.restaurantorders.ui.components.RestaurantTopAppBar
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 
 @Composable
@@ -62,7 +60,7 @@ fun HomeScreen(
                 },
                 onRestaurantClicked = { restaurant ->
                     restaurantViewModel.updateSelectedRestaurant(restaurant)
-                    navController.navigateSingleTopTo(Orders.route)
+                    navController.navigateSingleTopTo(RestaurantInfo.route)
                 },
                 modifier = Modifier.padding(innerPadding)
             )

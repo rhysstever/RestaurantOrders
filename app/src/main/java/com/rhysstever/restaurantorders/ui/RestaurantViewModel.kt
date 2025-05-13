@@ -133,7 +133,7 @@ class RestaurantViewModel : ViewModel() {
             // If the input is already a restaurant name, the input is invalid
             _uiState.update { currentState ->
                 currentState.copy(
-                    isNewOrderInputInvalid = currentState.restaurants
+                    isNewOrderInputInvalid = currentState.selectedRestaurant!!.orders
                         .map { it.name }.contains(newRestaurantInput)
                 )
             }

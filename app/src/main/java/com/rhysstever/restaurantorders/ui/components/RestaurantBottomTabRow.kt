@@ -84,18 +84,18 @@ fun RestaurantTab(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = if (selected) {
-                screen.selectedIcon
-            } else {
-                screen.unselectedIcon
-            },
-            contentDescription = screen.route,
-            modifier = Modifier.sizeIn(
-                minWidth = 24.dp,
-                minHeight = 24.dp
-            )
-        )
+//        Icon(
+//            imageVector = if (selected) {
+//                screen.selectedIcon
+//            } else {
+//                screen.unselectedIcon
+//            },
+//            contentDescription = screen.route,
+//            modifier = Modifier.sizeIn(
+//                minWidth = 24.dp,
+//                minHeight = 24.dp
+//            )
+//        )
         Text(
             text = screen.route,
             textAlign = TextAlign.Center
