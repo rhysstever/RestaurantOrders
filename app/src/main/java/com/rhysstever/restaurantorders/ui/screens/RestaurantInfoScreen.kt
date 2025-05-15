@@ -1,5 +1,6 @@
 package com.rhysstever.restaurantorders.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,39 +10,37 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.AddOrder
+import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.RestaurantInfo
-import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.theme.AppTypography
 
 @Composable
 fun RestaurantInfoScreen(
@@ -53,23 +52,26 @@ fun RestaurantInfoScreen(
     ScreenScaffold(
         currentScreen = RestaurantInfo,
         navController = navController,
-        restaurantViewModel = restaurantViewModel
+        updateNewRestaurantInput = {
+            restaurantViewModel.RestaurantContent().updateNewRestaurantInput(it)
+        },
+        updateNewOrderInput = {
+            restaurantViewModel.OrderContent().updateNewOrderInput(it)
+        }
     ) { innerPadding ->
         restaurantUIState.selectedRestaurant?.let {
             RestaurantScreenContent(
                 restaurant = it,
                 onFavoriteClick = { restaurant ->
-                    restaurantViewModel.toggleRestaurantIsFavorite(restaurant)
+                    restaurantViewModel.RestaurantContent().toggleRestaurantIsFavorite(restaurant)
                 },
                 onAddNewOrder = {
-                    restaurantViewModel.updateNewOrderInput("")
-                    navController.navigateSingleTopTo(AddOrder.route)
+                    restaurantViewModel.OrderContent().updateNewOrderInput("")
+                    navController.navigate(AddOrder.route)
                 },
                 modifier = Modifier.padding(innerPadding)
             )
-        } ?: run {
-            NoRestaurantList(modifier = Modifier.padding(innerPadding))
-        }
+        } ?: NoRestaurantList(modifier = Modifier.padding(innerPadding))
     }
 }
 
@@ -80,53 +82,72 @@ fun RestaurantScreenContent(
     onAddNewOrder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(16.dp)) {
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = restaurant.name)
+            Text(
+                text = restaurant.name,
+                style = AppTypography.header1
+            )
             AccessibleIcon(
                 imageVector = if(restaurant.isFavorite) {
                     Icons.Default.Favorite
                 } else {
                     Icons.Default.FavoriteBorder
                 },
-                contentDescription = "Favorite",
+                contentDescription = if(restaurant.isFavorite) {
+                    stringResource(R.string.is_favorite)
+                } else {
+                    stringResource(R.string.is_not_favorite)
+                },
                 onClick = { onFavoriteClick(restaurant) }
             )
         }
 
         Button(
             onClick = onAddNewOrder
-        ) { Text(text = "Add Order") }
+        ) { Text(text = stringResource(R.string.add_order)) }
 
-        Column {
-            Text("Orders")
-            restaurant.orders.reversed().forEachIndexed { index, order ->
+        LazyColumn {
+            item {
+                Text(
+                    text = stringResource(R.string.orders),
+                    style = AppTypography.header2
+                )
+            }
+            itemsIndexed(
+                items = restaurant.orders.reversed()
+            ) { index, order ->
                 // If it is the first order to list or its the first order of a new rating,
                 // show a rating heading
                 if(index == 0 || index > 0 && restaurant.orders.reversed()[index - 1].rating != order.rating) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(color = Color.LightGray)
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = 8.dp
+                            )
                             .height(24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (order.rating != 1) {
-                            Text("${order.rating} Stars")
-                        } else {
-                            Text("${order.rating} Star")
-                        }
+                        Text(
+                            text = pluralStringResource(R.plurals.stars, order.rating),
+                            style = AppTypography.title1
+                        )
                         Spacer(modifier = modifier.width(4.dp))
                         // Display a row of stars for the rating
                         repeat(order.rating) {
                             Icon(
                                 imageVector = Icons.Default.Star,
-                                contentDescription = "",
+                                contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -139,9 +160,7 @@ fun RestaurantScreenContent(
 }
 
 @Composable
-fun OrderListItem(
-    order: Order
-) {
+fun OrderListItem(order: Order) {
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -152,8 +171,14 @@ fun OrderListItem(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(text = order.name)
-        Text(text = order.notes)
+        Text(
+            text = order.name,
+            style = AppTypography.title1
+        )
+        Text(
+            text = order.notes,
+            style = AppTypography.body1
+        )
     }
 }
 

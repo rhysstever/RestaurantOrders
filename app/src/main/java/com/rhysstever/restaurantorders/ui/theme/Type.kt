@@ -32,3 +32,12 @@ val Typography = Typography(
     )
     */
 )
+
+val AppTypography = CustomTypography()
+
+data class CustomTypography (
+    val header1: TextStyle = Typography.headlineLarge,
+    val header2: TextStyle = Typography.headlineSmall,
+    val title1: TextStyle = AppTypography.title1,
+    val body1: TextStyle = Typography.bodyLarge
+)

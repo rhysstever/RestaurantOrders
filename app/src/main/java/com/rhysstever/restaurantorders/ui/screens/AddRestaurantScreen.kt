@@ -1,18 +1,16 @@
 package com.rhysstever.restaurantorders.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,9 +18,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.AddRestaurant
 import com.rhysstever.restaurantorders.Home
-import com.rhysstever.restaurantorders.navigateSingleTopTo
+import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.components.StyledTextField
 
 @Composable
 fun AddRestaurantScreen(
@@ -34,18 +33,23 @@ fun AddRestaurantScreen(
     ScreenScaffold(
         currentScreen = AddRestaurant,
         navController = navController,
-        restaurantViewModel = restaurantViewModel
+        updateNewRestaurantInput = {
+            restaurantViewModel.RestaurantContent().updateNewRestaurantInput(it)
+        },
+        updateNewOrderInput = {
+            restaurantViewModel.OrderContent().updateNewOrderInput(it)
+        }
     ) { innerPadding ->
         AddRestaurantScreenContent(
             restaurantName = restaurantViewModel.newRestaurantInput,
             isInputInvalid = restaurantUIState.isNewRestaurantInputInvalid,
             onNewRestaurantInput = { newRestaurantName ->
-                restaurantViewModel.updateNewRestaurantInput(newRestaurantName)
+                restaurantViewModel.RestaurantContent().updateNewRestaurantInput(newRestaurantName)
             },
-            onKeyboardDone = { restaurantViewModel.checkNewRestaurantInput() },
+            onKeyboardDone = { restaurantViewModel.RestaurantContent().checkNewRestaurantInput() },
             onAddNewRestaurant = {
-                restaurantViewModel.addRestaurant()
-                navController.navigateSingleTopTo(Home.route)
+                restaurantViewModel.RestaurantContent().addRestaurant()
+                navController.navigate(Home.route)
             },
             modifier = Modifier.padding(innerPadding)
         )
@@ -55,46 +59,42 @@ fun AddRestaurantScreen(
 @Composable
 fun AddRestaurantScreenContent(
     restaurantName: String,
-    isInputInvalid: Boolean?,
     onNewRestaurantInput: (String) -> Unit,
+    isInputInvalid: Boolean?,
     onKeyboardDone: () -> Unit,
     onAddNewRestaurant: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(horizontal = 16.dp)
+        modifier = modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        OutlinedTextField(
+        StyledTextField(
             value = restaurantName,
             onValueChange = onNewRestaurantInput,
-            modifier = Modifier.fillMaxWidth(),
+            isInputInvalid = isInputInvalid,
             label = {
                 isInputInvalid?.let { isInvalid ->
-                    if(isInvalid) {
-                        if(restaurantName.isBlank()) {
-                            Text(text = "Invalid Restaurant Name")
+                    if (isInvalid) {
+                        if (restaurantName.isBlank()) {
+                            Text(text = stringResource(R.string.invalid_restaurant_name))
                         } else {
-                            Text(text = "Restaurant Name Already Exists")
+                            Text(text = stringResource(R.string.restaurant_name_exists))
                         }
                     } else {
-                        Text(text = "Enter Restaurant Name")
+                        Text(text = stringResource(R.string.enter_restaurant_name))
                     }
-                } ?: Text(text = "Enter Restaurant Name")
+                } ?: Text(text = stringResource(R.string.enter_restaurant_name))
             },
-            isError = isInputInvalid ?: false,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { onKeyboardDone() }
-            )
+            onKeyboardDone = onKeyboardDone,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Button(
             onClick = onAddNewRestaurant,
             enabled = isInputInvalid?.let { !it } ?: false,
         ) {
-            Text("Add Restaurant")
+            Text(text = stringResource(R.string.add_restaurant))
         }
     }
 }

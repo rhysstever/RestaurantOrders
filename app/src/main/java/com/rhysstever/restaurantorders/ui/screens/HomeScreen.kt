@@ -6,32 +6,35 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.Home
+import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.RestaurantInfo
-import com.rhysstever.restaurantorders.navigateSingleTopTo
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.theme.AppTypography
 
 @Composable
 fun HomeScreen(
@@ -43,7 +46,14 @@ fun HomeScreen(
     ScreenScaffold(
         currentScreen = Home,
         navController = navController,
-        restaurantViewModel = restaurantViewModel
+        updateNewRestaurantInput = {
+            restaurantViewModel.RestaurantContent().updateNewRestaurantInput(it)
+        },
+        updateNewOrderInput = {
+            restaurantViewModel.OrderContent().updateNewOrderInput(it)
+        },
+        isOnlyShowingFavorites = restaurantUIState.onlyShowFavorites,
+        onToggleShowFavorites = { restaurantViewModel.toggleShowingFavorites() }
     ) { innerPadding ->
         if(restaurantUIState.restaurants.isEmpty()) {
             NoRestaurantList(
@@ -60,7 +70,7 @@ fun HomeScreen(
                 },
                 onRestaurantClicked = { restaurant ->
                     restaurantViewModel.updateSelectedRestaurant(restaurant)
-                    navController.navigateSingleTopTo(RestaurantInfo.route)
+                    navController.navigate(RestaurantInfo.route)
                 },
                 modifier = Modifier.padding(innerPadding)
             )
@@ -103,7 +113,8 @@ fun RestaurantListItem(
             .padding(
                 horizontal = 16.dp,
                 vertical = 8.dp
-            ),
+            )
+            .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -113,7 +124,11 @@ fun RestaurantListItem(
             } else {
                 Icons.Default.FavoriteBorder
             },
-            contentDescription = "Favorite",
+            contentDescription = if(restaurant.isFavorite) {
+                stringResource(R.string.is_favorite)
+            } else {
+                stringResource(R.string.is_not_favorite)
+            },
             modifier = Modifier.sizeIn(
                 minWidth = 24.dp,
                 minHeight = 24.dp
@@ -121,6 +136,7 @@ fun RestaurantListItem(
         )
         Text(
             text = restaurant.name,
+            style = AppTypography.title1,
             modifier = Modifier.padding(8.dp)
         )
     }
@@ -135,7 +151,10 @@ fun NoRestaurantList(modifier: Modifier = Modifier) {
     ) {
         Icon(imageVector = Icons.Default.Add, contentDescription = null)
         Spacer(modifier = Modifier.width(8.dp))
-        Text("Add a restaurant to get started!")
+        Text(
+            text = stringResource(R.string.get_started),
+//            style = AppTypography.body1   // Keep commented or remove: causes crash
+        )
     }
 }
 
