@@ -137,7 +137,7 @@ fun RestaurantListItem(
         )
         Text(
             text = restaurant.name,
-            style = Typography.headlineLarge,
+            style = Typography.headlineSmall,
             modifier = Modifier.padding(8.dp)
         )
     }

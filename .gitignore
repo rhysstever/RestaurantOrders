@@ -3,6 +3,7 @@
 *.ap_
 *.aab
 
+# files for the dex VM
 *.dex
 
 # Java class files

@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,7 +23,10 @@ fun EditableHeader(
     label: @Composable () -> Unit,
     onKeyboardDone: () -> Unit
 ) {
-    Box(modifier = Modifier.height(56.dp)) {
+    Box(
+        modifier = Modifier.height(56.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
         if(isBeingEdited) {
             StyledTextField(
                 value = text,
@@ -43,7 +47,7 @@ fun EditableHeader(
 @Preview
 @Composable
 fun EditableTextPreview() {
-    val (value, onValueChange) = remember { mutableStateOf("") }
+    val (value, onValueChange) = remember { mutableStateOf("Text") }
     val isEditing = remember { mutableStateOf(false) }
 
     Column {
