@@ -182,7 +182,7 @@ fun RestaurantScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = pluralStringResource(R.plurals.stars, order.rating),
+                            text = pluralStringResource(R.plurals.stars, order.rating, order.rating),
                             style = Typography.titleLarge
                         )
                         Spacer(modifier = modifier.width(4.dp))
