@@ -28,13 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.rhysstever.restaurantorders.AddRestaurant
 import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
-import com.rhysstever.restaurantorders.ui.theme.AppTypography
+import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun HomeScreen(
@@ -45,15 +46,15 @@ fun HomeScreen(
 
     ScreenScaffold(
         currentScreen = Home,
-        navController = navController,
-        updateNewRestaurantInput = {
-            restaurantViewModel.RestaurantContent().updateNewRestaurantInput(it)
+        onBack = null,
+        onAdd = {
+            restaurantViewModel.RestaurantContent().updateNewRestaurantInput("")
+            navController.navigate(AddRestaurant.route)
         },
-        updateNewOrderInput = {
-            restaurantViewModel.OrderContent().updateNewOrderInput(it)
-        },
-        isOnlyShowingFavorites = restaurantUIState.onlyShowFavorites,
-        onToggleShowFavorites = { restaurantViewModel.toggleShowingFavorites() }
+        showFavorites = Pair(
+            restaurantUIState.onlyShowFavorites,
+            { restaurantViewModel.toggleShowingFavorites() }
+        )
     ) { innerPadding ->
         if(restaurantUIState.restaurants.isEmpty()) {
             NoRestaurantList(
@@ -69,7 +70,7 @@ fun HomeScreen(
                     restaurantUIState.restaurants
                 },
                 onRestaurantClicked = { restaurant ->
-                    restaurantViewModel.updateSelectedRestaurant(restaurant)
+                    restaurantViewModel.RestaurantContent().updateSelectedRestaurant(restaurant)
                     navController.navigate(RestaurantInfo.route)
                 },
                 modifier = Modifier.padding(innerPadding)
@@ -136,7 +137,7 @@ fun RestaurantListItem(
         )
         Text(
             text = restaurant.name,
-            style = AppTypography.title1,
+            style = Typography.headlineLarge,
             modifier = Modifier.padding(8.dp)
         )
     }
@@ -153,7 +154,7 @@ fun NoRestaurantList(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.get_started),
-//            style = AppTypography.body1   // Keep commented or remove: causes crash
+            style = Typography.bodyLarge
         )
     }
 }

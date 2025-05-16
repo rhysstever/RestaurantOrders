@@ -40,13 +40,8 @@ fun AddOrderScreen(
 
     ScreenScaffold(
         currentScreen = AddOrder,
-        navController = navController,
-        updateNewRestaurantInput = {
-            restaurantViewModel.RestaurantContent().updateNewRestaurantInput(it)
-        },
-        updateNewOrderInput = {
-            restaurantViewModel.OrderContent().updateNewOrderInput(it)
-        }
+        onBack = { navController.navigate(RestaurantInfo.route) },
+        onAdd = null,
     ) { innerPadding ->
         AddOrderScreenContent(
             restaurant = restaurantUIState.selectedRestaurant!!,

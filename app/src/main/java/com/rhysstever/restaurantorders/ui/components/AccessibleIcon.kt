@@ -18,11 +18,13 @@ fun AccessibleIcon(
     imageVector: ImageVector,
     tint: Color = LocalContentColor.current,
     contentDescription: String,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .clickable(
+                enabled = enabled,
                 role = Role.Button,
                 onClick = onClick
             )

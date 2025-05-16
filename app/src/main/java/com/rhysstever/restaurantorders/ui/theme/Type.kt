@@ -6,6 +6,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+/**
+ * Typography to use
+ *
+ * Main headers = headlineLarge
+ * Secondary headers = headlineSmall
+ * Section header = titleLarge
+ * Body = bodyLarge
+ */
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -31,13 +40,4 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-)
-
-val AppTypography = CustomTypography()
-
-data class CustomTypography (
-    val header1: TextStyle = Typography.headlineLarge,
-    val header2: TextStyle = Typography.headlineSmall,
-    val title1: TextStyle = AppTypography.title1,
-    val body1: TextStyle = Typography.bodyLarge
 )

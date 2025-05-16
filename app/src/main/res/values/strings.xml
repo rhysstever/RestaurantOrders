@@ -15,6 +15,7 @@
     <!--Restaurant Info Screen-->
     <string name="add_order">Add Order</string>
     <string name="orders">Orders</string>
+    <string name="edit_restaurant_name">Edit Restaurant Name</string>
 
     <!--Add Order Screen-->
     <string name="enter_order_name">Enter Order Name</string>

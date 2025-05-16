@@ -28,50 +28,65 @@ class RestaurantViewModel : ViewModel() {
         }
     }
 
-    fun updateSelectedRestaurant(restaurant: Restaurant) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                selectedRestaurant = restaurant
-            )
-        }
-    }
-
     inner class RestaurantContent {
-
         fun updateNewRestaurantInput(newInput: String) {
             newRestaurantInput = newInput
             checkNewRestaurantInput()
         }
 
         fun checkNewRestaurantInput() {
-            if(newRestaurantInput.isEmpty()) {
-                // If there is no input, set the input validity to null
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isNewRestaurantInputInvalid = null
-                    )
-                }
-            } else if(newRestaurantInput.isBlank()) {
-                // If the input is blank (full of whitespace), set the input to invalid
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isNewRestaurantInputInvalid = true
-                    )
-                }
-            } else {
-                // If the input is already a restaurant name, the input is invalid
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isNewRestaurantInputInvalid = currentState.restaurants
-                            .map { it.name }.contains(newRestaurantInput)
-                    )
+            _uiState.update { currentState ->
+                // Check if there is a selected restaurant
+                currentState.selectedRestaurant?.let { selectedRestaurant ->
+                    // If there is a selected restaurant
+                    if(newRestaurantInput.isEmpty() || newRestaurantInput.isBlank()) {
+                        // If there is no input or it is blank (full of whitespace), set the input to invalid
+                        currentState.copy(
+                            isNewRestaurantInputInvalid = true
+                        )
+                    } else if(newRestaurantInput == selectedRestaurant.name) {
+                        // If the input is the same as the selected restaurant name, set the input to valid
+                        currentState.copy(
+                            isNewRestaurantInputInvalid = false
+                        )
+                    } else {
+                        // If the input is already a restaurant name (excluding the selected
+                        // restaurant), the input is invalid
+                        currentState.copy(
+                            isNewRestaurantInputInvalid = currentState.restaurants
+                                .filter { it != selectedRestaurant }
+                                .map { it.name }.contains(newRestaurantInput)
+                        )
+                    }
+                } ?: run {
+                    // If there is no selected restaurant
+                    if(newRestaurantInput.isEmpty()) {
+                        // If there is no input, set the input validity to null
+                        currentState.copy(
+                            isNewRestaurantInputInvalid = null
+                        )
+                    } else if(newRestaurantInput.isBlank()) {
+                        // If the input is blank (full of whitespace), set the input to invalid
+                        currentState.copy(
+                            isNewRestaurantInputInvalid = true
+                        )
+                    } else {
+                        // If the input is already a restaurant name, the input is invalid
+                        currentState.copy(
+                            isNewRestaurantInputInvalid = currentState.restaurants
+                                .map { it.name }.contains(newRestaurantInput)
+                        )
+                    }
                 }
             }
         }
 
         fun addRestaurant() {
             val newRestaurant = Restaurant(newRestaurantInput)
+            addRestaurant(newRestaurant = newRestaurant)
+        }
 
+        fun addRestaurant(newRestaurant: Restaurant) {
             _uiState.update { currentState ->
                 // If the list is not null, try to add the new restaurant to the list
                 if(currentState.restaurants.contains(newRestaurant)) {
@@ -89,6 +104,41 @@ class RestaurantViewModel : ViewModel() {
                         restaurants = sortedList
                     )
                 }
+            }
+        }
+
+        fun renameRestaurant(newRestaurantName: String) {
+            // Copy the current restaurant
+            val newRestaurant = uiState.value.selectedRestaurant!!.copy(
+                name = newRestaurantName
+            )
+
+            // Remove the old restaurant from the list
+            _uiState.update {
+                val restaurantIndex = it.restaurants.indexOf(it.selectedRestaurant)
+                val newList = it.restaurants.toMutableList()
+                newList.removeAt(restaurantIndex)
+
+                // Sort the new list by name
+                val sortedList = newList.toList().sortedBy { it.name.lowercase(Locale.ROOT) }
+
+                it.copy(
+                    restaurants = sortedList
+                )
+            }
+
+            // Select the new restaurant
+            updateSelectedRestaurant(newRestaurant)
+
+            // Add the new restaurant to the list
+            addRestaurant(newRestaurant = newRestaurant)
+        }
+
+        fun updateSelectedRestaurant(restaurant: Restaurant?) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    selectedRestaurant = restaurant
+                )
             }
         }
 
@@ -167,7 +217,7 @@ class RestaurantViewModel : ViewModel() {
                     newRestaurantList[restaurantIndex] = newRestaurant
 
                     // Update the selected restaurant
-                    updateSelectedRestaurant(newRestaurantList[restaurantIndex])
+                    this@RestaurantViewModel.RestaurantContent().updateSelectedRestaurant(newRestaurantList[restaurantIndex])
 
                     currentState.copy(
                         restaurants = newRestaurantList

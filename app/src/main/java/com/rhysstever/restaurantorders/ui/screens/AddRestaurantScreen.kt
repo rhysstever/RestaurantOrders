@@ -32,20 +32,15 @@ fun AddRestaurantScreen(
 
     ScreenScaffold(
         currentScreen = AddRestaurant,
-        navController = navController,
-        updateNewRestaurantInput = {
-            restaurantViewModel.RestaurantContent().updateNewRestaurantInput(it)
-        },
-        updateNewOrderInput = {
-            restaurantViewModel.OrderContent().updateNewOrderInput(it)
-        }
+        onBack = { navController.navigate(Home.route) },
+        onAdd = null,
     ) { innerPadding ->
         AddRestaurantScreenContent(
             restaurantName = restaurantViewModel.newRestaurantInput,
-            isInputInvalid = restaurantUIState.isNewRestaurantInputInvalid,
             onNewRestaurantInput = { newRestaurantName ->
                 restaurantViewModel.RestaurantContent().updateNewRestaurantInput(newRestaurantName)
             },
+            isInputInvalid = restaurantUIState.isNewRestaurantInputInvalid,
             onKeyboardDone = { restaurantViewModel.RestaurantContent().checkNewRestaurantInput() },
             onAddNewRestaurant = {
                 restaurantViewModel.RestaurantContent().addRestaurant()
