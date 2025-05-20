@@ -17,6 +17,9 @@ class RestaurantViewModel : ViewModel() {
     var newRestaurantInput by mutableStateOf("")
         private set
 
+    var renameRestaurantInput by mutableStateOf("")
+        private set
+
     var newOrderInput by mutableStateOf("")
         private set
 
@@ -38,40 +41,45 @@ class RestaurantViewModel : ViewModel() {
             _uiState.update { currentState ->
                 // Check if there is a selected restaurant
                 currentState.selectedRestaurant?.let { selectedRestaurant ->
-                    // If there is a selected restaurant
+                    // When a restaurant is selected (renaming restaurant)
+
+                    // The input is invalid if there is no input or it is blank (full of whitespace)
                     if(newRestaurantInput.isEmpty() || newRestaurantInput.isBlank()) {
-                        // If there is no input or it is blank (full of whitespace), set the input to invalid
                         currentState.copy(
                             isNewRestaurantInputInvalid = true
                         )
-                    } else if(newRestaurantInput == selectedRestaurant.name) {
-                        // If the input is the same as the selected restaurant name, set the input to valid
+                    }
+                    // The input is valid if the input is the same as the selected restaurant name
+                    else if(newRestaurantInput == selectedRestaurant.name) {
                         currentState.copy(
                             isNewRestaurantInputInvalid = false
                         )
-                    } else {
-                        // If the input is already a restaurant name (excluding the selected
-                        // restaurant), the input is invalid
+                    }
+                    // The input is valid if the input is an unique restaurant name
+                    else {
                         currentState.copy(
                             isNewRestaurantInputInvalid = currentState.restaurants
-                                .filter { it != selectedRestaurant }
+                                .filter { it != selectedRestaurant }    // Exclude the selected restaurant
                                 .map { it.name }.contains(newRestaurantInput)
                         )
                     }
                 } ?: run {
-                    // If there is no selected restaurant
+                    // When no restaurant is selected (adding restaurant)
+
+                    // The input is null if there is no input
                     if(newRestaurantInput.isEmpty()) {
-                        // If there is no input, set the input validity to null
                         currentState.copy(
                             isNewRestaurantInputInvalid = null
                         )
-                    } else if(newRestaurantInput.isBlank()) {
-                        // If the input is blank (full of whitespace), set the input to invalid
+                    }
+                    // The input is invalid if the input is blank (full of whitespace)
+                    else if(newRestaurantInput.isBlank()) {
                         currentState.copy(
                             isNewRestaurantInputInvalid = true
                         )
-                    } else {
-                        // If the input is already a restaurant name, the input is invalid
+                    }
+                    // The input is valid if it is an unique restaurant name
+                    else {
                         currentState.copy(
                             isNewRestaurantInputInvalid = currentState.restaurants
                                 .map { it.name }.contains(newRestaurantInput)
@@ -107,6 +115,34 @@ class RestaurantViewModel : ViewModel() {
             }
         }
 
+        fun updateRestaurantRenameInput(newRenameInput: String) {
+            renameRestaurantInput = newRenameInput
+            checkRestaurantRenameInput()
+        }
+
+        fun checkRestaurantRenameInput() {
+            _uiState.update { currentState ->
+                currentState.selectedRestaurant?.let { selectedRestaurant ->
+                    if(renameRestaurantInput.isEmpty() || renameRestaurantInput.isBlank()) {
+                        currentState.copy(
+                            isRestaurantRenameInputInvalid = true
+                        )
+                    } else if(renameRestaurantInput == selectedRestaurant.name) {
+                        currentState.copy(
+                            isRestaurantRenameInputInvalid = false
+                        )
+                    } else {
+                        currentState.copy(
+                            isRestaurantRenameInputInvalid = currentState.restaurants
+                                .filter { it != selectedRestaurant }
+                                .map { it.name }
+                                .contains(renameRestaurantInput)
+                        )
+                    }
+                } ?: currentState
+            }
+        }
+
         fun renameRestaurant(newRestaurantName: String) {
             // Copy the current restaurant
             val newRestaurant = uiState.value.selectedRestaurant!!.copy(
@@ -114,31 +150,45 @@ class RestaurantViewModel : ViewModel() {
             )
 
             // Remove the old restaurant from the list
-            _uiState.update {
-                val restaurantIndex = it.restaurants.indexOf(it.selectedRestaurant)
-                val newList = it.restaurants.toMutableList()
+            _uiState.update { currentState ->
+                val restaurantIndex = currentState.restaurants.indexOf(currentState.selectedRestaurant)
+                val newList = currentState.restaurants.toMutableList()
                 newList.removeAt(restaurantIndex)
 
                 // Sort the new list by name
                 val sortedList = newList.toList().sortedBy { it.name.lowercase(Locale.ROOT) }
 
-                it.copy(
-                    restaurants = sortedList
+                currentState.copy(
+                    restaurants = sortedList,
+                    selectedRestaurant = newRestaurant
                 )
             }
-
-            // Select the new restaurant
-            updateSelectedRestaurant(newRestaurant)
 
             // Add the new restaurant to the list
             addRestaurant(newRestaurant = newRestaurant)
         }
 
-        fun updateSelectedRestaurant(restaurant: Restaurant?) {
+        fun selectRestaurant(restaurant: Restaurant?) {
             _uiState.update { currentState ->
-                currentState.copy(
-                    selectedRestaurant = restaurant
-                )
+                restaurant?.let {
+                    if(currentState.restaurants.contains(restaurant)) {
+                        // Set the restaurant input as the name of the selected restaurant
+                        updateRestaurantRenameInput(restaurant.name)
+
+                        // Set the given restaurant as the selected restaurant
+                        currentState.copy(
+                            selectedRestaurant = restaurant
+                        )
+                    } else {
+                        currentState.copy(
+                            selectedRestaurant = null
+                        )
+                    }
+                } ?: run {
+                    currentState.copy(
+                        selectedRestaurant = null
+                    )
+                }
             }
         }
 
@@ -149,11 +199,9 @@ class RestaurantViewModel : ViewModel() {
                     val newList = currentState.restaurants.toMutableList()
                     newList[restaurantIndex] = restaurant.copy(isFavorite = !restaurant.isFavorite)
 
-                    // Update the selected restaurant
-                    updateSelectedRestaurant(newList[restaurantIndex])
-
                     currentState.copy(
-                        restaurants = newList
+                        restaurants = newList,
+                        selectedRestaurant = newList[restaurantIndex]
                     )
                 } else {
                     currentState
@@ -216,15 +264,46 @@ class RestaurantViewModel : ViewModel() {
                     )
                     newRestaurantList[restaurantIndex] = newRestaurant
 
-                    // Update the selected restaurant
-                    this@RestaurantViewModel.RestaurantContent().updateSelectedRestaurant(newRestaurantList[restaurantIndex])
-
                     currentState.copy(
-                        restaurants = newRestaurantList
+                        restaurants = newRestaurantList,
+                        selectedRestaurant = newRestaurantList[restaurantIndex]
                     )
                 } else {
                     currentState
                 }
+            }
+        }
+
+        fun removeOrder(order: Order) {
+            _uiState.update { currentState ->
+                currentState.selectedRestaurant?.let { currentRestaurant ->
+                    // Get the index of the current selected restaurant
+                    val restaurantIndex = currentState.restaurants.indexOf(currentRestaurant)
+
+                    // Check if the restaurant index is valid and if the order exists in the restaurant
+                    if(restaurantIndex != -1 && currentRestaurant.orders.contains(order)) {
+                        // Get the list of orders and remove the given order
+                        val newOrderList = currentRestaurant.orders.toMutableList()
+                        newOrderList.remove(order)
+
+                        // Create a new restaurant with the updated order list
+                        val newRestaurant = currentRestaurant.copy(
+                            orders = newOrderList.toList()
+                        )
+
+                        // Get the list of all restaurants and update it with the new restaurant
+                        val newRestaurantList = currentState.restaurants.toMutableList()
+                        newRestaurantList[restaurantIndex] = newRestaurant
+
+                        // Update the restaurants list and selected restaurant
+                        currentState.copy(
+                            restaurants = newRestaurantList,
+                            selectedRestaurant = newRestaurantList[restaurantIndex]
+                        )
+                    } else {
+                        currentState
+                    }
+                } ?: currentState
             }
         }
     }

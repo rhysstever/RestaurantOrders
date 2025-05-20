@@ -68,19 +68,17 @@ fun AddRestaurantScreenContent(
             value = restaurantName,
             onValueChange = onNewRestaurantInput,
             isInputInvalid = isInputInvalid,
-            label = {
-                isInputInvalid?.let { isInvalid ->
-                    if (isInvalid) {
-                        if (restaurantName.isBlank()) {
-                            Text(text = stringResource(R.string.invalid_restaurant_name))
-                        } else {
-                            Text(text = stringResource(R.string.restaurant_name_exists))
-                        }
+            label = isInputInvalid?.let { isInvalid ->
+                if (isInvalid) {
+                    if (restaurantName.isBlank()) {
+                        stringResource(R.string.invalid_restaurant_name)
                     } else {
-                        Text(text = stringResource(R.string.enter_restaurant_name))
+                        stringResource(R.string.restaurant_name_exists)
                     }
-                } ?: Text(text = stringResource(R.string.enter_restaurant_name))
-            },
+                } else {
+                    stringResource(R.string.enter_restaurant_name)
+                }
+            } ?: stringResource(R.string.enter_restaurant_name),
             onKeyboardDone = onKeyboardDone,
             modifier = Modifier.fillMaxWidth()
         )

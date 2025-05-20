@@ -16,7 +16,7 @@ fun StyledTextField(
     value: String,
     onValueChange: (String) -> Unit,
     isInputInvalid: Boolean?,
-    label: @Composable () -> Unit,
+    label: String,
     onKeyboardDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -24,7 +24,7 @@ fun StyledTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
-        label = label,
+        label = { Text(text = label) },
         isError = isInputInvalid ?: false,
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = ImeAction.Done
@@ -45,7 +45,7 @@ fun StyledTextFieldPreview() {
         value = value,
         onValueChange = onValueChange,
         isInputInvalid = true,
-        label = { Text(text = "Label") },
+        label = "Label",
         onKeyboardDone = {}
     )
 }

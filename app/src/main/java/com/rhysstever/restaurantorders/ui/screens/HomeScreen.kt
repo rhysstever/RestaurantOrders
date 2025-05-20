@@ -70,7 +70,7 @@ fun HomeScreen(
                     restaurantUIState.restaurants
                 },
                 onRestaurantClicked = { restaurant ->
-                    restaurantViewModel.RestaurantContent().updateSelectedRestaurant(restaurant)
+                    restaurantViewModel.RestaurantContent().selectRestaurant(restaurant)
                     navController.navigate(RestaurantInfo.route)
                 },
                 modifier = Modifier.padding(innerPadding)

@@ -5,6 +5,7 @@ data class RestaurantUIState(
     val onlyShowFavorites: Boolean = false,
     val isNewRestaurantInputInvalid: Boolean? = null,
     val selectedRestaurant: Restaurant? = null,
+    val isRestaurantRenameInputInvalid: Boolean = false,
     val isNewOrderInputInvalid: Boolean? = null,
 )
 

@@ -15,7 +15,14 @@
     <!--Restaurant Info Screen-->
     <string name="add_order">Add Order</string>
     <string name="orders">Orders</string>
-    <string name="edit_restaurant_name">Edit Restaurant Name</string>
+    <string name="enter_new_restaurant_name">Enter New Restaurant Name</string>
+    <string name="rename_restaurant">Rename Restaurant</string>
+    <string name="submit_rename">Submit Rename</string>
+    <string name="delete_order">Delete Order</string>
+    <string name="delete_order_title">Delete this order?</string>
+    <string name="delete_order_body">Delete this order?</string>
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
 
     <!--Add Order Screen-->
     <string name="enter_order_name">Enter Order Name</string>

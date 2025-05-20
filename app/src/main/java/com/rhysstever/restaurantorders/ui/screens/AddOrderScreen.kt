@@ -83,19 +83,17 @@ fun AddOrderScreenContent(
             value = orderName,
             onValueChange = onNewOrderInput,
             isInputInvalid = isOrderNameInputInvalid,
-            label = {
-                isOrderNameInputInvalid?.let { isInvalid ->
-                    if (isInvalid) {
-                        if (orderName.isBlank()) {
-                            Text(text = stringResource(R.string.invalid_order_name))
-                        } else {
-                            Text(text = stringResource(R.string.order_name_exists))
-                        }
+            label = isOrderNameInputInvalid?.let { isInvalid ->
+                if (isInvalid) {
+                    if (orderName.isBlank()) {
+                        stringResource(R.string.invalid_order_name)
                     } else {
-                        Text(text = stringResource(R.string.enter_order_name))
+                        stringResource(R.string.order_name_exists)
                     }
-                } ?: Text(text = stringResource(R.string.enter_order_name))
-            },
+                } else {
+                    stringResource(R.string.enter_order_name)
+                }
+            } ?: stringResource(R.string.enter_order_name),
             onKeyboardDone = onKeyboardDone,
             modifier = Modifier.fillMaxWidth()
         )
@@ -112,7 +110,7 @@ fun AddOrderScreenContent(
             value = notes,
             onValueChange = onNotesValueChange,
             isInputInvalid = isOrderNameInputInvalid,
-            label = { Text(text = stringResource(R.string.add_notes)) },
+            label = stringResource(R.string.add_notes),
             onKeyboardDone = onKeyboardDone,
             modifier = Modifier.fillMaxWidth()
         )

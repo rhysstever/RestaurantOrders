@@ -23,6 +23,7 @@ fun ScreenScaffold(
     currentScreen: RestaurantDestination,
     onBack: (() -> Unit)?,
     onAdd: (() -> Unit)?,
+    areActionsEnabled: Boolean = true,
     showFavorites: Pair<Boolean, () -> Unit>? = null,
     contentToShow: @Composable (PaddingValues) -> Unit
 ) {
@@ -33,6 +34,7 @@ fun ScreenScaffold(
                 currentScreen = currentScreen,
                 onBack = onBack,
                 onAdd = onAdd,
+                areActionsEnabled = areActionsEnabled,
                 onlyShowFavorites = showFavorites
             )
         }
@@ -47,6 +49,7 @@ fun RestaurantTopAppBar(
     currentScreen: RestaurantDestination,
     onBack: (() -> Unit)? = null,
     onAdd: (() -> Unit)? = null,
+    areActionsEnabled: Boolean = true,
     onlyShowFavorites: Pair<Boolean, () -> Unit>? = null,
 ) {
     CenterAlignedTopAppBar(
@@ -58,6 +61,7 @@ fun RestaurantTopAppBar(
                 AccessibleIcon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Back",
+                    enabled = areActionsEnabled,
                     onClick = onBack
                 )
             }
@@ -74,6 +78,7 @@ fun RestaurantTopAppBar(
                             Icons.Default.FavoriteBorder
                         },
                         contentDescription = "Show Favorites",
+                        enabled = areActionsEnabled,
                         onClick = it.second
                     )
                 }
@@ -81,6 +86,7 @@ fun RestaurantTopAppBar(
                     AccessibleIcon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add Restaurant",
+                        enabled = areActionsEnabled,
                         onClick = onAdd
                     )
                 }

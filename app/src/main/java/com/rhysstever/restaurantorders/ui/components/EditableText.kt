@@ -20,7 +20,7 @@ fun EditableHeader(
     text: String,
     onTextChange: (String) -> Unit,
     isInputInvalid: Boolean?,
-    label: @Composable () -> Unit,
+    label: String,
     onKeyboardDone: () -> Unit
 ) {
     Box(
@@ -59,7 +59,7 @@ fun EditableTextPreview() {
             text = value,
             onTextChange = onValueChange,
             isInputInvalid = null,
-            label = { Text(text = "Label") },
+            label = "Label",
             onKeyboardDone = {}
         )
     }
