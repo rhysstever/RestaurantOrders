@@ -58,10 +58,6 @@ fun RestaurantInfoScreen(
     val restaurantUIState by restaurantViewModel.uiState.collectAsState()
     val isEditingRestaurantName = remember { mutableStateOf(false) }
 
-//    Log.v("Rhys Test Restaurant Debug", "Is Editing: ${isEditingRestaurantName.value} Is Valid: ${restaurantUIState.isNewRestaurantInputInvalid}")
-
-//    Log.v("Rhys Test Restaurant Debug", "Selected Res: ${restaurantUIState.selectedRestaurant}")
-
     ScreenScaffold(
         currentScreen = RestaurantInfo,
         onBack = {

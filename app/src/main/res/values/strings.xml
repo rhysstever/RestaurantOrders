@@ -19,16 +19,18 @@
     <string name="rename_restaurant">Rename Restaurant</string>
     <string name="submit_rename">Submit Rename</string>
     <string name="delete_order">Delete Order</string>
+
     <string name="delete_order_title">Delete this order?</string>
-    <string name="delete_order_body">Delete this order?</string>
+    <string name="delete_order_body">Are you sure you want to delete this order?</string>
     <string name="confirm">Confirm</string>
-    <string name="dismiss">Dismiss</string>
+    <string name="cancel">Cancel</string>
 
     <!--Add Order Screen-->
     <string name="enter_order_name">Enter Order Name</string>
     <string name="invalid_order_name">Invalid Order Name</string>
     <string name="order_name_exists">Order Name Already Exists</string>
     <string name="add_notes">Add Notes</string>
+    <string name="order_date_picker_header">Select an Ordered Date</string>
 
     <!--Plurals-->
     <plurals name="stars">

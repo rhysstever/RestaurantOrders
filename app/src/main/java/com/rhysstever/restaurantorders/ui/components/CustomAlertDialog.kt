@@ -27,7 +27,7 @@ fun CustomAlertDialog(
         modifier = modifier,
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dismiss))
+                Text(text = stringResource(R.string.cancel))
             }
         },
         title = {

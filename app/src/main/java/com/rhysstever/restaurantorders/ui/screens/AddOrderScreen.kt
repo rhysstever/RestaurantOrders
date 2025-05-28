@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -60,6 +61,7 @@ fun AddOrderScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOrderScreenContent(
     restaurant: Restaurant,
@@ -114,6 +116,14 @@ fun AddOrderScreenContent(
             onKeyboardDone = onKeyboardDone,
             modifier = Modifier.fillMaxWidth()
         )
+        
+        // TODO: Uncomment when date picker is implemented
+//        val dateOrderedState = rememberDatePickerState()
+//
+//        CustomDatePicker(
+//            state = dateOrderedState,
+//            headlineText = stringResource(R.string.order_date_picker_header)
+//        )
 
         // Submit button
         Button(
@@ -121,8 +131,10 @@ fun AddOrderScreenContent(
                 // Create a new Order object
                 val newOrder = Order(
                     name = orderName,
-                    rating = rating, // Default rating
-                    notes = notes
+                    rating = rating,
+                    notes = notes,
+                    dateCreated = java.time.LocalDate.now(),
+                    dateOrdered = null
                 )
 
                 // Add the new order to the restaurant

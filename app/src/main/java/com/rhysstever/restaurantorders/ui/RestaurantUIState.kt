@@ -1,5 +1,7 @@
 package com.rhysstever.restaurantorders.ui
 
+import java.time.LocalDate
+
 data class RestaurantUIState(
     val restaurants: List<Restaurant> = emptyList(),
     val onlyShowFavorites: Boolean = false,
@@ -18,5 +20,7 @@ data class Restaurant(
 data class Order(
     val name: String,
     val rating: Int,
-    val notes: String
+    val notes: String,
+    val dateCreated: LocalDate,
+    val dateOrdered: LocalDate?
 )
