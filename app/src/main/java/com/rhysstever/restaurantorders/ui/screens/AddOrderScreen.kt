@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,9 +29,11 @@ import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.components.CustomDatePicker
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
+import com.rhysstever.restaurantorders.ui.components.convertMillisToDate
 
 @Composable
 fun AddOrderScreen(
@@ -73,7 +76,7 @@ fun AddOrderScreenContent(
     modifier: Modifier = Modifier
 ) {
     val (notes, onNotesValueChange) = remember { mutableStateOf("") }
-    var rating by remember { mutableIntStateOf(0) }
+    var rating by remember { mutableStateOf<Int?>(null) }
 
     Column(
         modifier = modifier.padding(horizontal = 16.dp),
@@ -103,8 +106,19 @@ fun AddOrderScreenContent(
         RatingsRow(
             rating = rating,
             onRatingChanged = {
-                rating = if(it == rating) { 0 } else { it }
+                rating = if(it == rating) { null } else { it }
             }
+        )
+
+        // Date ordered picker
+        val dateOrderedState = rememberDatePickerState(
+            initialSelectedDateMillis = System.currentTimeMillis(),
+            initialDisplayMode = DisplayMode.Input,
+        )
+
+        CustomDatePicker(
+            state = dateOrderedState,
+            headlineText = stringResource(R.string.date_ordered_picker_header)
         )
 
         // Notes text field
@@ -116,14 +130,6 @@ fun AddOrderScreenContent(
             onKeyboardDone = onKeyboardDone,
             modifier = Modifier.fillMaxWidth()
         )
-        
-        // TODO: Uncomment when date picker is implemented
-//        val dateOrderedState = rememberDatePickerState()
-//
-//        CustomDatePicker(
-//            state = dateOrderedState,
-//            headlineText = stringResource(R.string.order_date_picker_header)
-//        )
 
         // Submit button
         Button(
@@ -133,8 +139,9 @@ fun AddOrderScreenContent(
                     name = orderName,
                     rating = rating,
                     notes = notes,
-                    dateCreated = java.time.LocalDate.now(),
-                    dateOrdered = null
+                    dateOrdered = dateOrderedState.selectedDateMillis?.let {
+                        convertMillisToDate(it)
+                    }
                 )
 
                 // Add the new order to the restaurant

@@ -19,8 +19,7 @@ data class Restaurant(
 
 data class Order(
     val name: String,
-    val rating: Int,
-    val notes: String,
-    val dateCreated: LocalDate,
-    val dateOrdered: LocalDate?
+    val rating: Int?,
+    val dateOrdered: LocalDate?,
+    val notes: String
 )

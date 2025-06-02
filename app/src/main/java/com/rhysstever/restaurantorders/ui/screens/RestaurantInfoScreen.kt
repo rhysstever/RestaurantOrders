@@ -1,6 +1,5 @@
 package com.rhysstever.restaurantorders.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,15 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +44,7 @@ import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.EditableHeader
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.components.displayDate
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
@@ -108,21 +105,28 @@ fun RestaurantInfoScreen(
                     },
                 )
 
-                // Add order button
-                Button(
-                    onClick = {
-                        restaurantViewModel.OrderContent().updateNewOrderInput("")
-                        navController.navigate(AddOrder.route)
+                if(currentSelectedRestaurant.orders.isNotEmpty()) {
+                    // Order list for the selected restaurant
+                    OrdersList(
+                        ordersList = currentSelectedRestaurant.orders.reversed(),
+                        onRemoveOrder = { orderToRemove ->
+                            restaurantViewModel.OrderContent().removeOrder(orderToRemove)
+                        }
+                    )
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.add_an_order),
+                            style = Typography.bodyLarge
+                        )
                     }
-                ) { Text(text = stringResource(R.string.add_order)) }
-
-                // Order list for the selected restaurant
-                OrdersList(
-                    ordersList = currentSelectedRestaurant.orders.reversed(),
-                    onRemoveOrder = { orderToRemove ->
-                        restaurantViewModel.OrderContent().removeOrder(orderToRemove)
-                    }
-                )
+                }
             }
         } ?: NoRestaurantList(modifier = Modifier.padding(innerPadding))
     }
@@ -213,40 +217,11 @@ fun OrdersList(
                 style = Typography.headlineSmall
             )
         }
-        itemsIndexed(
-            items = ordersList
-        ) { index, currentOrder ->
-            // If it is the first order to list or its the first order of a new rating,
-            // show a rating heading
-            if(index == 0 || index > 0 && ordersList[index - 1].rating != currentOrder.rating) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = Color.LightGray)
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        )
-                        .height(24.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = pluralStringResource(R.plurals.stars, currentOrder.rating, currentOrder.rating),
-                        style = Typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    // Display a row of stars for the rating
-                    repeat(currentOrder.rating) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            }
+        items(
+            count = ordersList.size
+        ) { currentOrder ->
             OrderListItem(
-                order = currentOrder,
+                order = ordersList[currentOrder],
                 onRemoveOrder = onRemoveOrder
             )
         }
@@ -283,9 +258,24 @@ fun OrderListItem(
                 isDeleteOrderDialogShowing.value = true
             }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            order.rating?.let {
+                StarsRow(it)
+            }
+            order.dateOrdered?.let {
+                Text(
+                    text = "${stringResource(R.string.date_ordered)}: ${displayDate(it)}",
+                    style = Typography.bodyLarge
+                )
+            }
+        }
+
         Text(
             text = order.notes,
-            modifier = Modifier.padding(horizontal = 16.dp),
             style = Typography.bodyLarge
         )
 
@@ -295,6 +285,22 @@ fun OrderListItem(
                 onConfirm = { onRemoveOrder(order) },
                 title = stringResource(R.string.delete_order_title),
                 body = stringResource(R.string.delete_order_body)
+            )
+        }
+    }
+}
+
+@Composable
+fun StarsRow(numberOfStars: Int) {
+    Row(
+        modifier = Modifier.height(24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(numberOfStars) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
             )
         }
     }
