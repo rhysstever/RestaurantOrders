@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
-fun EditableHeader(
+fun EditableText(
     isBeingEdited: Boolean,
     text: String,
     onTextChange: (String) -> Unit,
@@ -54,7 +54,7 @@ fun EditableTextPreview() {
         Button(
             onClick = { isEditing.value = !isEditing.value },
         ) { Text("Toggle Editing") }
-        EditableHeader(
+        EditableText(
             isBeingEdited = isEditing.value,
             text = value,
             onTextChange = onValueChange,

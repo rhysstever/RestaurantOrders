@@ -80,7 +80,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun RestaurantList(
+private fun RestaurantList(
     restaurantList: List<Restaurant>,
     onRestaurantClicked: (Restaurant) -> Unit,
     modifier: Modifier = Modifier
@@ -101,7 +101,7 @@ fun RestaurantList(
 }
 
 @Composable
-fun RestaurantListItem(
+private fun RestaurantListItem(
     restaurant: Restaurant,
     onRestaurantClicked: (Restaurant) -> Unit,
 ) {
@@ -161,6 +161,6 @@ fun NoRestaurantList(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun RestaurantHomePreview() {
+private fun RestaurantHomePreview() {
     HomeScreen()
 }

@@ -18,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -66,7 +65,7 @@ fun AddOrderScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddOrderScreenContent(
+private fun AddOrderScreenContent(
     restaurant: Restaurant,
     orderName: String,
     isOrderNameInputInvalid: Boolean?,
@@ -115,7 +114,6 @@ fun AddOrderScreenContent(
             initialSelectedDateMillis = System.currentTimeMillis(),
             initialDisplayMode = DisplayMode.Input,
         )
-
         CustomDatePicker(
             state = dateOrderedState,
             headlineText = stringResource(R.string.date_ordered_picker_header)
@@ -152,10 +150,4 @@ fun AddOrderScreenContent(
             Text(text = stringResource(R.string.add_order))
         }
     }
-}
-
-@Preview
-@Composable
-fun AddOrderScreenPreview() {
-    AddOrderScreen()
 }

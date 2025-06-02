@@ -52,7 +52,7 @@ fun AddRestaurantScreen(
 }
 
 @Composable
-fun AddRestaurantScreenContent(
+private fun AddRestaurantScreenContent(
     restaurantName: String,
     onNewRestaurantInput: (String) -> Unit,
     isInputInvalid: Boolean?,
@@ -94,6 +94,6 @@ fun AddRestaurantScreenContent(
 
 @Preview
 @Composable
-fun AddRestaurantScreenPreview() {
+private fun AddRestaurantScreenPreview() {
     AddRestaurantScreen()
 }
