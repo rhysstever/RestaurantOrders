@@ -2,7 +2,7 @@ package com.rhysstever.restaurantorders.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AccessibleIcon(
     imageVector: ImageVector,
-    tint: Color = LocalContentColor.current,
     contentDescription: String,
+    tint: Color = LocalContentColor.current,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -28,7 +28,7 @@ fun AccessibleIcon(
                 role = Role.Button,
                 onClick = onClick
             )
-            .sizeIn(
+            .requiredSizeIn(
                 minWidth = 48.dp,
                 minHeight = 48.dp
             ),
@@ -37,7 +37,7 @@ fun AccessibleIcon(
         Icon(
             imageVector = imageVector,
             contentDescription = contentDescription,
-            modifier = Modifier.sizeIn(
+            modifier = Modifier.requiredSizeIn(
                 minWidth = 24.dp,
                 minHeight = 24.dp
             ),

@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -36,7 +40,7 @@ import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
-import com.rhysstever.restaurantorders.ui.components.RestaurantInfoScreenTitle
+import com.rhysstever.restaurantorders.ui.components.EditableText
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.displayDate
 import com.rhysstever.restaurantorders.ui.theme.Typography
@@ -108,6 +112,86 @@ fun RestaurantInfoScreen(
 }
 
 @Composable
+fun RestaurantInfoScreenTitle(
+    isEditing: Boolean,
+    onToggleEditingRestaurantName: () -> Unit,
+    restaurantInput: String,
+    onRestaurantNameChange: (String) -> Unit,
+    isInputInvalid: Boolean,
+    isRestaurantFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
+    onKeyboardDone: () -> Unit = {},
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        EditableText(
+            isBeingEdited = isEditing,
+            text = restaurantInput,
+            onTextChange = onRestaurantNameChange,
+            isInputInvalid = isInputInvalid,
+            label = if (isInputInvalid) {
+                if (restaurantInput.isBlank()) {
+                    stringResource(R.string.invalid_restaurant_name)
+                } else {
+                    stringResource(R.string.restaurant_name_exists)
+                }
+            } else {
+                stringResource(R.string.enter_new_restaurant_name)
+            },
+            onKeyboardDone = onKeyboardDone
+        )
+        Row {
+            if(isEditing) {
+                AccessibleIcon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = stringResource(R.string.submit_rename),
+                    enabled = !isInputInvalid,
+                    onClick = onToggleEditingRestaurantName
+                )
+            } else {
+                AccessibleIcon(
+                    imageVector = Icons.Default.Create,
+                    contentDescription = stringResource(R.string.rename_restaurant),
+                    onClick = onToggleEditingRestaurantName
+                )
+            }
+            AccessibleIcon(
+                imageVector = if(isRestaurantFavorite) {
+                    Icons.Default.Favorite
+                } else {
+                    Icons.Default.FavoriteBorder
+                },
+                contentDescription = if(isRestaurantFavorite) {
+                    stringResource(R.string.is_favorite)
+                } else {
+                    stringResource(R.string.is_not_favorite)
+                },
+                onClick = onFavoriteClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun NoOrdersList() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = stringResource(R.string.add_an_order),
+            style = Typography.bodyLarge
+        )
+    }
+}
+
+@Composable
 private fun OrdersList(
     ordersList: List<Order>,
     onRemoveOrder: (Order) -> Unit
@@ -127,22 +211,6 @@ private fun OrdersList(
                 onRemoveOrder = onRemoveOrder
             )
         }
-    }
-}
-
-@Composable
-private fun NoOrdersList() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = null)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.add_an_order),
-            style = Typography.bodyLarge
-        )
     }
 }
 
@@ -190,7 +258,7 @@ private fun OrderListItem(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.requiredSize(16.dp)
                         )
                     }
                 }

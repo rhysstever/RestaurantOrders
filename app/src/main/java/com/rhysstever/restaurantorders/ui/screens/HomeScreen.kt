@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -130,7 +131,7 @@ private fun RestaurantListItem(
             } else {
                 stringResource(R.string.is_not_favorite)
             },
-            modifier = Modifier.sizeIn(
+            modifier = Modifier.requiredSizeIn(
                 minWidth = 24.dp,
                 minHeight = 24.dp
             )
