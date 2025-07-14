@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
@@ -62,6 +63,27 @@ fun displayDate(date: LocalDate): String {
 @Composable
 fun CustomDatePickerPreview() {
     val state = rememberDatePickerState()
+
+    Column {
+        CustomDatePicker(
+            state = state,
+            headlineText = "Select a Date",
+        )
+        Text(
+            text = "Selected Date: ${state.selectedDateMillis?.let {
+                displayDate(convertMillisToDate(it))
+            } ?: "Null"}"
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun CustomDatePickerInputPreview() {
+    val state = rememberDatePickerState(
+        initialDisplayMode = DisplayMode.Input
+    )
 
     Column {
         CustomDatePicker(

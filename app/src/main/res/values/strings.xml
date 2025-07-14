@@ -13,6 +13,7 @@
     <string name="add_restaurant">Add Restaurant</string>
 
     <!--Restaurant Info Screen-->
+    <string name="no_restaurant_text">No restaurant selected. Go back to the home screen and select a restaurant</string>
     <string name="orders">Orders</string>
     <string name="enter_new_restaurant_name">Enter New Restaurant Name</string>
     <string name="rename_restaurant">Rename Restaurant</string>

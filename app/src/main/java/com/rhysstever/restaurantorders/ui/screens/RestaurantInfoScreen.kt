@@ -21,51 +21,50 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.rhysstever.restaurantorders.AddOrder
-import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.Order
-import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.Restaurant
+import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.EditableText
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.displayDate
+import com.rhysstever.restaurantorders.ui.demoUIState
+import com.rhysstever.restaurantorders.ui.demoUIStateSelected
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun RestaurantInfoScreen(
-    navController: NavHostController = rememberNavController(),
-    restaurantViewModel: RestaurantViewModel = viewModel()
+    state: RestaurantUIState,
+    onBack: () -> Unit,
+    onAdd: () -> Unit,
+    onRestaurantRename: (String) -> Unit,
+    onRestaurantNameValueChange: (String) -> Unit,
+    onFavoriteRestaurantClick: (Restaurant) -> Unit,
+    onKeyboardDone: () -> Unit,
+    onRemoveOrder: (Order) -> Unit
 ) {
-    val restaurantUIState by restaurantViewModel.uiState.collectAsState()
-    val isEditingRestaurantName = remember { mutableStateOf(false) }
-
     ScreenScaffold(
         currentScreen = RestaurantInfo,
-        onBack = {
-            restaurantViewModel.RestaurantContent().selectRestaurant(null)
-            navController.navigate(Home.route)
-        },
-        onAdd = {
-            restaurantViewModel.OrderContent().updateNewOrderInput("")
-            navController.navigate(AddOrder.route)
-        },
-        areActionsEnabled = !isEditingRestaurantName.value
+        onBack = onBack,
+        onAdd = state.selectedRestaurant?.let { onAdd }
     ) { innerPadding ->
-        restaurantUIState.selectedRestaurant?.let { currentSelectedRestaurant ->
+        state.selectedRestaurant?.let { currentSelectedRestaurant ->
+            val isEditingRestaurantName = remember { mutableStateOf(false) }
+            val (restaurantName, onRestaurantNameChange) = remember { mutableStateOf(currentSelectedRestaurant.name) }
+
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -78,36 +77,35 @@ fun RestaurantInfoScreen(
                     onToggleEditingRestaurantName = {
                         // If the restaurant's name is being edited, rename the restaurant
                         if (isEditingRestaurantName.value) {
-                            restaurantViewModel.RestaurantContent().renameRestaurant(restaurantViewModel.renameRestaurantInput)
+                            onRestaurantNameChange(restaurantName)
+                            onRestaurantRename(restaurantName)
                         }
                         // Toggle the editing state
                         isEditingRestaurantName.value = !isEditingRestaurantName.value
                     },
-                    restaurantInput = restaurantViewModel.renameRestaurantInput,
+                    restaurant = currentSelectedRestaurant,
+                    restaurantInput = restaurantName,
                     onRestaurantNameChange = { newRestaurantName ->
-                        restaurantViewModel.RestaurantContent().updateRestaurantRenameInput(newRestaurantName)
+                        onRestaurantNameChange(newRestaurantName)
+                        onRestaurantNameValueChange(newRestaurantName)
                     },
-                    isInputInvalid = restaurantUIState.isRestaurantRenameInputInvalid,
+                    isInputInvalid = state.isRestaurantRenameInputInvalid,
                     isRestaurantFavorite = currentSelectedRestaurant.isFavorite,
-                    onFavoriteClick = {
-                        restaurantViewModel.RestaurantContent().toggleRestaurantIsFavorite(currentSelectedRestaurant)
-                    },
-                    onKeyboardDone = { restaurantViewModel.RestaurantContent().checkNewRestaurantInput() }
+                    onFavoriteRestaurantClick = onFavoriteRestaurantClick,
+                    onKeyboardDone = onKeyboardDone
                 )
 
                 if(currentSelectedRestaurant.orders.isNotEmpty()) {
                     // Order list for the selected restaurant
                     OrdersList(
                         ordersList = currentSelectedRestaurant.orders.reversed(),
-                        onRemoveOrder = { orderToRemove ->
-                            restaurantViewModel.OrderContent().removeOrder(orderToRemove)
-                        }
+                        onRemoveOrder = onRemoveOrder
                     )
                 } else {
                     NoOrdersList()
                 }
             }
-        } ?: NoRestaurantList(modifier = Modifier.padding(innerPadding))
+        } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
     }
 }
 
@@ -115,11 +113,12 @@ fun RestaurantInfoScreen(
 fun RestaurantInfoScreenTitle(
     isEditing: Boolean,
     onToggleEditingRestaurantName: () -> Unit,
+    restaurant: Restaurant,
     restaurantInput: String,
     onRestaurantNameChange: (String) -> Unit,
     isInputInvalid: Boolean,
     isRestaurantFavorite: Boolean,
-    onFavoriteClick: () -> Unit,
+    onFavoriteRestaurantClick: (Restaurant) -> Unit,
     onKeyboardDone: () -> Unit = {},
 ) {
     Row(
@@ -159,7 +158,7 @@ fun RestaurantInfoScreenTitle(
                 )
             }
             AccessibleIcon(
-                imageVector = if(isRestaurantFavorite) {
+                imageVector = if(restaurant.isFavorite) {
                     Icons.Default.Favorite
                 } else {
                     Icons.Default.FavoriteBorder
@@ -169,7 +168,9 @@ fun RestaurantInfoScreenTitle(
                 } else {
                     stringResource(R.string.is_not_favorite)
                 },
-                onClick = onFavoriteClick
+                onClick = {
+                    onFavoriteRestaurantClick(restaurant)
+                }
             )
         }
     }
@@ -222,7 +223,8 @@ private fun OrderListItem(
     Column (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .semantics(mergeDescendants = true) {},
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.Start
     ) {
@@ -257,7 +259,7 @@ private fun OrderListItem(
                     repeat(it) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = null,
+                            contentDescription = "${it} ${pluralStringResource(R.plurals.stars, it, it)}",
                             modifier = Modifier.requiredSize(16.dp)
                         )
                     }
@@ -285,4 +287,51 @@ private fun OrderListItem(
             )
         }
     }
+}
+
+@Composable
+private fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.no_restaurant_text),
+            textAlign = TextAlign.Center,
+            style = Typography.bodyLarge
+        )
+    }
+}
+
+@Preview
+@Composable
+fun RestaurantInfoScreenPreview() {
+    RestaurantInfoScreen(
+        state = demoUIStateSelected,
+        onBack = {},
+        onAdd = {},
+        onRestaurantRename = {},
+        onRestaurantNameValueChange = {},
+        onFavoriteRestaurantClick = {},
+        onKeyboardDone = {},
+        onRemoveOrder = {},
+    )
+}
+
+@Preview
+@Composable
+fun RestaurantInfoScreenNoSelectionPreview() {
+    RestaurantInfoScreen(
+        state = demoUIState,
+        onBack = {},
+        onAdd = {},
+        onRestaurantRename = {},
+        onRestaurantNameValueChange = {},
+        onFavoriteRestaurantClick = {},
+        onKeyboardDone = {},
+        onRemoveOrder = {},
+    )
 }

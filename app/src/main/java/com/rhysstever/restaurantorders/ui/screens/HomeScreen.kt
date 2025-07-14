@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -17,8 +16,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -26,57 +23,62 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.rhysstever.restaurantorders.AddRestaurant
 import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.Restaurant
-import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.demoUIState
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun HomeScreen(
-    navController: NavHostController = rememberNavController(),
-    restaurantViewModel: RestaurantViewModel = viewModel()
+    state: RestaurantUIState,
+    onAdd: () -> Unit,
+    onShowFavorites: () -> Unit,
+    onRestaurantClicked: (Restaurant) -> Unit,
 ) {
-    val restaurantUIState by restaurantViewModel.uiState.collectAsState()
-
     ScreenScaffold(
         currentScreen = Home,
         onBack = null,
-        onAdd = {
-            restaurantViewModel.RestaurantContent().updateNewRestaurantInput("")
-            navController.navigate(AddRestaurant.route)
-        },
+        onAdd = onAdd,
         showFavorites = Pair(
-            restaurantUIState.onlyShowFavorites,
-            { restaurantViewModel.toggleShowingFavorites() }
+            state.onlyShowFavorites,
+            onShowFavorites
         )
     ) { innerPadding ->
-        if(restaurantUIState.restaurants.isEmpty()) {
-            NoRestaurantList(
-                modifier = Modifier.padding(innerPadding)
-            )
-        } else {
-            // If there are restaurants to list, show the list
-            // Filter the list down to only favorites if the toggle is on
-            RestaurantList(
-                restaurantList = if(restaurantUIState.onlyShowFavorites) {
-                    restaurantUIState.restaurants.filter { it.isFavorite }
-                } else {
-                    restaurantUIState.restaurants
-                },
-                onRestaurantClicked = { restaurant ->
-                    restaurantViewModel.RestaurantContent().selectRestaurant(restaurant)
-                    navController.navigate(RestaurantInfo.route)
-                },
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
+        HomeScreenContent(
+            restaurantsList = state.restaurants,
+            showFavorites = state.onlyShowFavorites,
+            onRestaurantClicked = onRestaurantClicked,
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+}
+
+@Composable
+fun HomeScreenContent(
+    restaurantsList: List<Restaurant>,
+    showFavorites: Boolean,
+    onRestaurantClicked: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if(restaurantsList.isEmpty()) {
+        NoRestaurantList(
+            modifier = modifier
+        )
+    } else {
+        // If there are restaurants to list, show the list
+        // Filter the list down to only favorites if the toggle is on
+        RestaurantList(
+            restaurantList = if(showFavorites) {
+                restaurantsList.filter { it.isFavorite }
+            } else {
+                restaurantsList
+            },
+            onRestaurantClicked = onRestaurantClicked,
+            modifier = modifier
+        )
     }
 }
 
@@ -162,6 +164,22 @@ fun NoRestaurantList(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-private fun RestaurantHomePreview() {
-    HomeScreen()
+private fun RestaurantHomeScreenWithListPreview() {
+    HomeScreen(
+        state = demoUIState,
+        onAdd = {},
+        onShowFavorites = {},
+        onRestaurantClicked = {}
+    )
+}
+
+@Preview
+@Composable
+private fun RestaurantHomeScreenNoListPreview() {
+    HomeScreen(
+        state = demoUIState.copy(restaurants = emptyList()),
+        onAdd = {},
+        onShowFavorites = {},
+        onRestaurantClicked = {}
+    )
 }

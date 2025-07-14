@@ -1,8 +1,5 @@
 package com.rhysstever.restaurantorders.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,15 +11,6 @@ class RestaurantViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RestaurantUIState())
     val uiState: StateFlow<RestaurantUIState> = _uiState.asStateFlow()
 
-    var newRestaurantInput by mutableStateOf("")
-        private set
-
-    var renameRestaurantInput by mutableStateOf("")
-        private set
-
-    var newOrderInput by mutableStateOf("")
-        private set
-
     fun toggleShowingFavorites() {
         _uiState.update { currentState ->
             currentState.copy(
@@ -32,12 +20,7 @@ class RestaurantViewModel : ViewModel() {
     }
 
     inner class RestaurantContent {
-        fun updateNewRestaurantInput(newInput: String) {
-            newRestaurantInput = newInput
-            checkNewRestaurantInput()
-        }
-
-        fun checkNewRestaurantInput() {
+        fun checkNewRestaurantInput(newRestaurantInput: String) {
             _uiState.update { currentState ->
                 // Check if there is a selected restaurant
                 currentState.selectedRestaurant?.let { selectedRestaurant ->
@@ -89,8 +72,8 @@ class RestaurantViewModel : ViewModel() {
             }
         }
 
-        fun addRestaurant() {
-            val newRestaurant = Restaurant(newRestaurantInput)
+        fun addRestaurant(restaurantName: String) {
+            val newRestaurant = Restaurant(restaurantName)
             addRestaurant(newRestaurant = newRestaurant)
         }
 
@@ -115,19 +98,14 @@ class RestaurantViewModel : ViewModel() {
             }
         }
 
-        fun updateRestaurantRenameInput(newRenameInput: String) {
-            renameRestaurantInput = newRenameInput
-            checkRestaurantRenameInput()
-        }
-
-        fun checkRestaurantRenameInput() {
+        fun checkRestaurantRenameInput(newRestaurantInput: String) {
             _uiState.update { currentState ->
                 currentState.selectedRestaurant?.let { selectedRestaurant ->
-                    if(renameRestaurantInput.isEmpty() || renameRestaurantInput.isBlank()) {
+                    if(newRestaurantInput.isEmpty() || newRestaurantInput.isBlank()) {
                         currentState.copy(
                             isRestaurantRenameInputInvalid = true
                         )
-                    } else if(renameRestaurantInput == selectedRestaurant.name) {
+                    } else if(newRestaurantInput == selectedRestaurant.name) {
                         currentState.copy(
                             isRestaurantRenameInputInvalid = false
                         )
@@ -136,7 +114,7 @@ class RestaurantViewModel : ViewModel() {
                             isRestaurantRenameInputInvalid = currentState.restaurants
                                 .filter { it != selectedRestaurant }
                                 .map { it.name }
-                                .contains(renameRestaurantInput)
+                                .contains(newRestaurantInput)
                         )
                     }
                 } ?: currentState
@@ -173,7 +151,7 @@ class RestaurantViewModel : ViewModel() {
                 restaurant?.let {
                     if(currentState.restaurants.contains(restaurant)) {
                         // Set the restaurant input as the name of the selected restaurant
-                        updateRestaurantRenameInput(restaurant.name)
+                        checkRestaurantRenameInput(restaurant.name)
 
                         // Set the given restaurant as the selected restaurant
                         currentState.copy(
@@ -211,20 +189,15 @@ class RestaurantViewModel : ViewModel() {
     }
 
     inner class OrderContent {
-        fun updateNewOrderInput(newInput: String) {
-            newOrderInput = newInput
-            checkNewOrderInput()
-        }
-
-        fun checkNewOrderInput() {
-            if(newOrderInput.isEmpty()) {
+        fun checkNewOrderInput(orderName: String) {
+            if(orderName.isEmpty()) {
                 // If there is no input, set the input validity to null
                 _uiState.update { currentState ->
                     currentState.copy(
                         isNewOrderInputInvalid = null
                     )
                 }
-            } else if(newOrderInput.isBlank()) {
+            } else if(orderName.isBlank()) {
                 // If the input is blank (full of whitespace), set the input to invalid
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -236,7 +209,7 @@ class RestaurantViewModel : ViewModel() {
                 _uiState.update { currentState ->
                     currentState.copy(
                         isNewOrderInputInvalid = currentState.selectedRestaurant!!.orders
-                            .map { it.name }.contains(newOrderInput)
+                            .map { it.name }.contains(orderName)
                     )
                 }
             }

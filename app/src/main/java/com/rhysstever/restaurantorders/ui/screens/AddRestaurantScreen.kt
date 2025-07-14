@@ -7,45 +7,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.AddRestaurant
-import com.rhysstever.restaurantorders.Home
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
+import com.rhysstever.restaurantorders.ui.demoUIState
 
 @Composable
 fun AddRestaurantScreen(
-    navController: NavHostController = rememberNavController(),
-    restaurantViewModel: RestaurantViewModel = viewModel()
+    state: RestaurantUIState,
+    onBack: () -> Unit,
+    checkRestaurantInput: (String) -> Unit,
+    onAddNewRestaurant: (String) -> Unit,
 ) {
-    val restaurantUIState by restaurantViewModel.uiState.collectAsState()
-
     ScreenScaffold(
         currentScreen = AddRestaurant,
-        onBack = { navController.navigate(Home.route) },
+        onBack = onBack,
         onAdd = null,
     ) { innerPadding ->
         AddRestaurantScreenContent(
-            restaurantName = restaurantViewModel.newRestaurantInput,
-            onNewRestaurantInput = { newRestaurantName ->
-                restaurantViewModel.RestaurantContent().updateNewRestaurantInput(newRestaurantName)
-            },
-            isInputInvalid = restaurantUIState.isNewRestaurantInputInvalid,
-            onKeyboardDone = { restaurantViewModel.RestaurantContent().checkNewRestaurantInput() },
-            onAddNewRestaurant = {
-                restaurantViewModel.RestaurantContent().addRestaurant()
-                navController.navigate(Home.route)
-            },
+            isInputInvalid = state.isNewRestaurantInputInvalid,
+            checkRestaurantInput = checkRestaurantInput,
+            onAddNewRestaurant = onAddNewRestaurant,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -53,20 +43,23 @@ fun AddRestaurantScreen(
 
 @Composable
 private fun AddRestaurantScreenContent(
-    restaurantName: String,
-    onNewRestaurantInput: (String) -> Unit,
     isInputInvalid: Boolean?,
-    onKeyboardDone: () -> Unit,
-    onAddNewRestaurant: () -> Unit,
+    checkRestaurantInput: (String) -> Unit,
+    onAddNewRestaurant: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val (restaurantName, onRestaurantNameChange) = remember { mutableStateOf("") }
+
     Column(
         modifier = modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         StyledTextField(
             value = restaurantName,
-            onValueChange = onNewRestaurantInput,
+            onValueChange = { newName ->
+                onRestaurantNameChange(newName)
+                checkRestaurantInput(newName)
+            },
             isInputInvalid = isInputInvalid,
             label = isInputInvalid?.let { isInvalid ->
                 if (isInvalid) {
@@ -79,12 +72,14 @@ private fun AddRestaurantScreenContent(
                     stringResource(R.string.enter_restaurant_name)
                 }
             } ?: stringResource(R.string.enter_restaurant_name),
-            onKeyboardDone = onKeyboardDone,
+            onKeyboardDone = {
+                checkRestaurantInput(restaurantName)
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
         Button(
-            onClick = onAddNewRestaurant,
+            onClick = { onAddNewRestaurant(restaurantName) },
             enabled = isInputInvalid?.let { !it } ?: false,
         ) {
             Text(text = stringResource(R.string.add_restaurant))
@@ -95,5 +90,10 @@ private fun AddRestaurantScreenContent(
 @Preview
 @Composable
 private fun AddRestaurantScreenPreview() {
-    AddRestaurantScreen()
+    AddRestaurantScreen(
+        state = demoUIState.copy(selectedRestaurant = demoUIState.restaurants[0]),
+        onBack = {},
+        checkRestaurantInput = {},
+        onAddNewRestaurant = {}
+    )
 }

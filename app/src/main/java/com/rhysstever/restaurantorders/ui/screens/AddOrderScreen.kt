@@ -2,6 +2,7 @@ package com.rhysstever.restaurantorders.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -10,7 +11,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,48 +18,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.AddOrder
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.Restaurant
-import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.components.CustomDatePicker
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
 import com.rhysstever.restaurantorders.ui.components.convertMillisToDate
+import com.rhysstever.restaurantorders.ui.demoUIState
+import com.rhysstever.restaurantorders.ui.demoUIStateSelected
+import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun AddOrderScreen(
-    navController: NavHostController = rememberNavController(),
-    restaurantViewModel: RestaurantViewModel = viewModel()
+    state: RestaurantUIState,
+    onBack: () -> Unit,
+    isOrderNameInputInvalid: Boolean?,
+    onNewOrderInput: (String) -> Unit,
+    onKeyboardDone: (String) -> Unit,
+    onAddNewOrder: (Restaurant, Order) -> Unit,
 ) {
-    val restaurantUIState by restaurantViewModel.uiState.collectAsState()
-
     ScreenScaffold(
         currentScreen = AddOrder,
-        onBack = { navController.navigate(RestaurantInfo.route) },
+        onBack = onBack,
         onAdd = null,
     ) { innerPadding ->
-        AddOrderScreenContent(
-            restaurant = restaurantUIState.selectedRestaurant!!,
-            orderName = restaurantViewModel.newOrderInput,
-            isOrderNameInputInvalid = restaurantUIState.isNewOrderInputInvalid,
-            onNewOrderInput = { newOrderName ->
-                restaurantViewModel.OrderContent().updateNewOrderInput(newOrderName)
-            },
-            onKeyboardDone = { restaurantViewModel.OrderContent().checkNewOrderInput() },
-            onAddNewOrder = { restaurant, order ->
-                restaurantViewModel.OrderContent().addNewOrder(restaurant, order)
-                navController.navigate(RestaurantInfo.route)
-            },
-            modifier = Modifier.padding(innerPadding)
-        )
+        state.selectedRestaurant?.let { currentlySelectedRestaurant ->
+            AddOrderScreenContent(
+                restaurant = currentlySelectedRestaurant,
+                isOrderNameInputInvalid = isOrderNameInputInvalid,
+                onNewOrderInput = onNewOrderInput,
+                onKeyboardDone = onKeyboardDone,
+                onAddNewOrder = onAddNewOrder,
+                modifier = Modifier.padding(innerPadding)
+            )
+        } ?: NoSelectedRestaurantMessage(modifier = Modifier.padding(innerPadding))
     }
 }
 
@@ -67,13 +66,13 @@ fun AddOrderScreen(
 @Composable
 private fun AddOrderScreenContent(
     restaurant: Restaurant,
-    orderName: String,
     isOrderNameInputInvalid: Boolean?,
     onNewOrderInput: (String) -> Unit,
-    onKeyboardDone: () -> Unit,
+    onKeyboardDone: (String) -> Unit,
     onAddNewOrder: (Restaurant, Order) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val (orderName, onOrderNameChange) = remember { mutableStateOf("") }
     val (notes, onNotesValueChange) = remember { mutableStateOf("") }
     var rating by remember { mutableStateOf<Int?>(null) }
 
@@ -85,7 +84,10 @@ private fun AddOrderScreenContent(
         // Order name text field
         StyledTextField(
             value = orderName,
-            onValueChange = onNewOrderInput,
+            onValueChange = {
+                onOrderNameChange(orderName)
+                onNewOrderInput(orderName)
+            },
             isInputInvalid = isOrderNameInputInvalid,
             label = isOrderNameInputInvalid?.let { isInvalid ->
                 if (isInvalid) {
@@ -98,7 +100,7 @@ private fun AddOrderScreenContent(
                     stringResource(R.string.enter_order_name)
                 }
             } ?: stringResource(R.string.enter_order_name),
-            onKeyboardDone = onKeyboardDone,
+            onKeyboardDone = { onKeyboardDone(orderName) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -106,12 +108,13 @@ private fun AddOrderScreenContent(
             rating = rating,
             onRatingChanged = {
                 rating = if(it == rating) { null } else { it }
-            }
+            },
+            ratingTitle = stringResource(R.string.order_rating)
         )
 
         // Date ordered picker
         val dateOrderedState = rememberDatePickerState(
-            initialSelectedDateMillis = System.currentTimeMillis(),
+            initialSelectedDateMillis = null,
             initialDisplayMode = DisplayMode.Input,
         )
         CustomDatePicker(
@@ -123,9 +126,9 @@ private fun AddOrderScreenContent(
         StyledTextField(
             value = notes,
             onValueChange = onNotesValueChange,
-            isInputInvalid = isOrderNameInputInvalid,
+            isInputInvalid = false,
             label = stringResource(R.string.add_notes),
-            onKeyboardDone = onKeyboardDone,
+            onKeyboardDone = { },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -150,4 +153,47 @@ private fun AddOrderScreenContent(
             Text(text = stringResource(R.string.add_order))
         }
     }
+}
+
+@Composable
+private fun NoSelectedRestaurantMessage(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.no_restaurant_text),
+            textAlign = TextAlign.Center,
+            style = Typography.bodyLarge
+        )
+    }
+}
+
+@Preview
+@Composable
+fun AddOrderScreenPreview() {
+    AddOrderScreen(
+        state = demoUIStateSelected,
+        onBack = { },
+        isOrderNameInputInvalid = null,
+        onNewOrderInput = { },
+        onKeyboardDone = { },
+        onAddNewOrder = { _, _ -> },
+    )
+}
+
+@Preview
+@Composable
+fun AddOrderScreenNoSelectionPreview() {
+    AddOrderScreen(
+        state = demoUIState,
+        onBack = { },
+        isOrderNameInputInvalid = null,
+        onNewOrderInput = { },
+        onKeyboardDone = { },
+        onAddNewOrder = { _, _ -> },
+    )
 }

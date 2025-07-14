@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.theme.Typography
@@ -25,6 +24,7 @@ import com.rhysstever.restaurantorders.ui.theme.Typography
 fun RatingsRow(
     rating: Int?,
     onRatingChanged: (Int) -> Unit,
+    ratingTitle: String,
     modifier: Modifier = Modifier
 ) {
     val clampedRating = rating?.coerceIn(1, 5) ?: run { 0 }
@@ -33,7 +33,7 @@ fun RatingsRow(
         modifier = modifier.fillMaxWidth()
     ) {
         Text(
-            text = stringResource(R.string.order_rating),
+            text = ratingTitle,
             style = Typography.bodyLarge,
         )
         Row(
@@ -71,6 +71,7 @@ fun RatingsRowPreview() {
             } else {
                 it
             }
-        }
+        },
+        ratingTitle = "Rating Title",
     )
 }
