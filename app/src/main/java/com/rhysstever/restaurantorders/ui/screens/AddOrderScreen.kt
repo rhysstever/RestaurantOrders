@@ -39,7 +39,6 @@ import com.rhysstever.restaurantorders.ui.theme.Typography
 fun AddOrderScreen(
     state: RestaurantUIState,
     onBack: () -> Unit,
-    isOrderNameInputInvalid: Boolean?,
     onNewOrderInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
     onAddNewOrder: (Restaurant, Order) -> Unit,
@@ -52,7 +51,7 @@ fun AddOrderScreen(
         state.selectedRestaurant?.let { currentlySelectedRestaurant ->
             AddOrderScreenContent(
                 restaurant = currentlySelectedRestaurant,
-                isOrderNameInputInvalid = isOrderNameInputInvalid,
+                isOrderNameInputInvalid = state.isNewOrderInputInvalid,
                 onNewOrderInput = onNewOrderInput,
                 onKeyboardDone = onKeyboardDone,
                 onAddNewOrder = onAddNewOrder,
@@ -84,9 +83,9 @@ private fun AddOrderScreenContent(
         // Order name text field
         StyledTextField(
             value = orderName,
-            onValueChange = {
-                onOrderNameChange(orderName)
-                onNewOrderInput(orderName)
+            onValueChange = { newOrderName ->
+                onOrderNameChange(newOrderName)
+                onNewOrderInput(newOrderName)
             },
             isInputInvalid = isOrderNameInputInvalid,
             label = isOrderNameInputInvalid?.let { isInvalid ->
@@ -178,7 +177,6 @@ fun AddOrderScreenPreview() {
     AddOrderScreen(
         state = demoUIStateSelected,
         onBack = { },
-        isOrderNameInputInvalid = null,
         onNewOrderInput = { },
         onKeyboardDone = { },
         onAddNewOrder = { _, _ -> },
@@ -191,7 +189,6 @@ fun AddOrderScreenNoSelectionPreview() {
     AddOrderScreen(
         state = demoUIState,
         onBack = { },
-        isOrderNameInputInvalid = null,
         onNewOrderInput = { },
         onKeyboardDone = { },
         onAddNewOrder = { _, _ -> },

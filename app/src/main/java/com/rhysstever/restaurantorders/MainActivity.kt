@@ -79,17 +79,17 @@ fun RestaurantNavHost(
                 onAdd = {
                     navController.navigate(AddOrder.route)
                 },
-                onRestaurantRename = { newName ->
-                    restaurantViewModel.RestaurantContent().renameRestaurant(newName)
+                onRestaurantRename = { newRestaurantName ->
+                    restaurantViewModel.RestaurantContent().renameRestaurant(newRestaurantName)
                 },
-                onRestaurantNameValueChange = { newName ->
-                    restaurantViewModel.RestaurantContent().checkRestaurantRenameInput(newName)
+                onRestaurantNameValueChange = { newRestaurantName ->
+                    restaurantViewModel.RestaurantContent().checkRestaurantRenameInput(newRestaurantName)
                 },
                 onFavoriteRestaurantClick = { restaurant ->
                     restaurantViewModel.RestaurantContent().toggleRestaurantIsFavorite(restaurant)
                 },
-                onKeyboardDone = {
-                    restaurantViewModel.RestaurantContent().checkNewRestaurantInput("")
+                onKeyboardDone = { newRestaurantName ->
+                    restaurantViewModel.RestaurantContent().checkNewRestaurantInput(newRestaurantName)
                 },
                 onRemoveOrder = { orderToRemove ->
                     restaurantViewModel.OrderContent().removeOrder(orderToRemove)
@@ -100,7 +100,6 @@ fun RestaurantNavHost(
             AddOrderScreen(
                 state = state.value,
                 onBack = { navController.navigate(RestaurantInfo.route) },
-                isOrderNameInputInvalid = state.value.isNewOrderInputInvalid,
                 onNewOrderInput = { newOrderName ->
                     restaurantViewModel.OrderContent().checkNewOrderInput(newOrderName)
                 },

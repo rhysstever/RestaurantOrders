@@ -53,7 +53,7 @@ fun RestaurantInfoScreen(
     onRestaurantRename: (String) -> Unit,
     onRestaurantNameValueChange: (String) -> Unit,
     onFavoriteRestaurantClick: (Restaurant) -> Unit,
-    onKeyboardDone: () -> Unit,
+    onKeyboardDone: (String) -> Unit,
     onRemoveOrder: (Order) -> Unit
 ) {
     ScreenScaffold(
@@ -92,7 +92,7 @@ fun RestaurantInfoScreen(
                     isInputInvalid = state.isRestaurantRenameInputInvalid,
                     isRestaurantFavorite = currentSelectedRestaurant.isFavorite,
                     onFavoriteRestaurantClick = onFavoriteRestaurantClick,
-                    onKeyboardDone = onKeyboardDone
+                    onKeyboardDone = { onKeyboardDone(restaurantName) }
                 )
 
                 if(currentSelectedRestaurant.orders.isNotEmpty()) {
