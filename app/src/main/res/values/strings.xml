@@ -31,6 +31,7 @@
     <string name="update_visit">Update Visit</string>
     <string name="enter_visit_name">Enter Visit Name</string>
     <string name="invalid_visit_name">Invalid Visit Name</string>
+    <string name="visit_rating">Visit Rating</string>
     <string name="date_visited_picker_header">Date Visited</string>
     <string name="add_notes">Add Notes</string>
 
@@ -50,6 +51,7 @@
     <string name="enter_order_name">Enter Order Name</string>
     <string name="invalid_order_name">Invalid Order Name</string>
     <string name="order_name_exists">Order Name Already Exists</string>
+    <string name="order_rating">Order Rating</string>
 
     <!--Misc/General-->
     <string name="confirm">Confirm</string>
@@ -58,5 +60,4 @@
         <item quantity="one">%1$d Star</item>
         <item quantity="other">%1$d Stars</item>
     </plurals>
-    <string name="order_rating">Order Rating</string>
 </resources>

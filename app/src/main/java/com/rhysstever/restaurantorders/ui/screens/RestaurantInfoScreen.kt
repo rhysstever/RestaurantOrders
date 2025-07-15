@@ -203,7 +203,7 @@ private fun VisitsList(
     LazyColumn {
         item {
             Text(
-                text = stringResource(R.string.orders),
+                text = stringResource(R.string.visits),
                 style = Typography.headlineSmall
             )
         }

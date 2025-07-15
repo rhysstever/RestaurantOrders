@@ -83,7 +83,7 @@ private fun AddVisitScreenContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Order name text field
+        // Visit name text field
         StyledTextField(
             value = visitName,
             onValueChange = { newVisitName ->
@@ -107,7 +107,7 @@ private fun AddVisitScreenContent(
             onRatingChanged = {
                 rating = if(it == rating) { null } else { it }
             },
-            ratingTitle = stringResource(R.string.order_rating)
+            ratingTitle = stringResource(R.string.visit_rating)
         )
 
         CustomDatePicker(
