@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.ui.theme.Typography
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -54,8 +56,24 @@ fun convertMillisToDate(millis: Long): LocalDate {
     return LocalDate.parse(stringDate, dateFormatter)
 }
 
+//fun convertSecondsToDate(seconds: Long): LocalDate {
+//    val timeOffset = 43200 // 12 hours in seconds
+//    val timeFormatter = SimpleDateFormat("yyyy/MM/dd", Locale.US)
+//    val stringDate = timeFormatter.format(Date(seconds * 1000 + timeOffset))
+//    val dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+//    return LocalDate.parse(stringDate, dateFormatter)
+//}
+
+fun convertDateToMillis(date: LocalDate): Long = date.toEpochSecond(
+    LocalTime.parse("12:00:00"), ZoneOffset.UTC
+) * 1000
+
+//fun displayDate(date: LocalDate): String {
+//    return date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+//}
+
 fun displayDate(date: LocalDate): String {
-    return date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+    return date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

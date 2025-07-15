@@ -1,10 +1,12 @@
 package com.rhysstever.restaurantorders.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -27,7 +29,9 @@ import com.rhysstever.restaurantorders.ui.components.CustomDatePicker
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
+import com.rhysstever.restaurantorders.ui.components.convertDateToMillis
 import com.rhysstever.restaurantorders.ui.components.convertMillisToDate
+import java.util.Calendar
 
 @Composable
 fun AddVisitScreen(
@@ -72,9 +76,13 @@ private fun AddVisitScreenContent(
 ) {
     val (visitName, onVisitNameChange) = remember { mutableStateOf(visit?.name ?: "") }
     var rating by remember { mutableStateOf(visit?.rating) }
+
+    val calendar = Calendar.getInstance()
     val dateVisited = rememberDatePickerState(
-        initialSelectedDateMillis = visit?.dateVisited?.toEpochDay(),
+        initialSelectedDateMillis = visit?.dateVisited?.let { convertDateToMillis(it) },
         initialDisplayMode = DisplayMode.Input,
+        // Restrict year selection to any year at or before the current year
+        yearRange = IntRange(DatePickerDefaults.YearRange.first, calendar.get(Calendar.YEAR))
     )
     val (notes, onNotesValueChange) = remember { mutableStateOf(visit?.notes ?: "") }
 
@@ -133,9 +141,7 @@ private fun AddVisitScreenContent(
                     name = visitName,
                     rating = rating,
                     notes = notes,
-                    dateVisited = dateVisited.selectedDateMillis?.let {
-                        convertMillisToDate(it)
-                    }
+                    dateVisited = dateVisited.selectedDateMillis?.let { convertMillisToDate(it) }
                 )
 
                 // If a current visit is selected, replace it with the new selections,

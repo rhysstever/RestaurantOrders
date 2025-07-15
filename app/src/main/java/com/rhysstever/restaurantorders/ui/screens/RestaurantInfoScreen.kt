@@ -1,5 +1,6 @@
 package com.rhysstever.restaurantorders.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -280,7 +281,7 @@ private fun VisitListItem(
             }
             visit.dateVisited?.let {
                 Text(
-                    text = "${stringResource(R.string.date_visited)}: ${displayDate(it)}",
+                    text = "${stringResource(R.string.date_visited)}: ${displayDate((it))}",
                     style = Typography.bodyLarge
                 )
             }
