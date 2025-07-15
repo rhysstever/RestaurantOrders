@@ -15,8 +15,10 @@ import androidx.navigation.compose.rememberNavController
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.screens.AddOrderScreen
 import com.rhysstever.restaurantorders.ui.screens.AddRestaurantScreen
+import com.rhysstever.restaurantorders.ui.screens.AddVisitScreen
 import com.rhysstever.restaurantorders.ui.screens.HomeScreen
 import com.rhysstever.restaurantorders.ui.screens.RestaurantInfoScreen
+import com.rhysstever.restaurantorders.ui.screens.VisitInfoScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +79,7 @@ fun RestaurantNavHost(
                     navController.navigate(Home.route)
                 },
                 onAdd = {
-                    navController.navigate(AddOrder.route)
+                    navController.navigate(AddVisit.route)
                 },
                 onRestaurantRename = { newRestaurantName ->
                     restaurantViewModel.RestaurantContent().renameRestaurant(newRestaurantName)
@@ -91,6 +93,39 @@ fun RestaurantNavHost(
                 onKeyboardDone = { newRestaurantName ->
                     restaurantViewModel.RestaurantContent().checkNewRestaurantInput(newRestaurantName)
                 },
+                onVisitSelected = { selectedVisit ->
+                    restaurantViewModel.VisitContent().selectVisit(selectedVisit)
+                    navController.navigate(VisitInfo.route)
+                },
+                onRemoveVisit = { visitToRemove ->
+                    restaurantViewModel.VisitContent().removeVisit(visitToRemove)
+                },
+            )
+        }
+        composable(route = AddVisit.route) {
+            AddVisitScreen(
+                state = state.value,
+                onBack = { navController.navigate(RestaurantInfo.route) },
+                onNewVisitInput = { newVisitName ->
+                    restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
+                },
+                onKeyboardDone = { newVisitName ->
+                    restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
+                },
+                onAddNewVisit = { restaurant, visit ->
+                    restaurantViewModel.VisitContent().addVisit(restaurant, visit)
+                    navController.navigate(RestaurantInfo.route)
+                }
+            )
+        }
+        composable(route = VisitInfo.route) {
+            VisitInfoScreen(
+                state = state.value,
+                onBack = { navController.navigate(RestaurantInfo.route) },
+                onAdd = { navController.navigate(AddOrder.route) },
+                onEditVisit = {
+                    navController.navigate(AddVisit.route)
+                },
                 onRemoveOrder = { orderToRemove ->
                     restaurantViewModel.OrderContent().removeOrder(orderToRemove)
                 },
@@ -99,16 +134,16 @@ fun RestaurantNavHost(
         composable(route = AddOrder.route) {
             AddOrderScreen(
                 state = state.value,
-                onBack = { navController.navigate(RestaurantInfo.route) },
+                onBack = { navController.navigate(VisitInfo.route) },
                 onNewOrderInput = { newOrderName ->
                     restaurantViewModel.OrderContent().checkNewOrderInput(newOrderName)
                 },
                 onKeyboardDone = { newOrderName ->
                     restaurantViewModel.OrderContent().checkNewOrderInput(newOrderName)
                 },
-                onAddNewOrder = { restaurant, order ->
-                    restaurantViewModel.OrderContent().addNewOrder(restaurant, order)
-                    navController.navigate(RestaurantInfo.route)
+                onAddNewOrder = { restaurant, visit, order ->
+                    restaurantViewModel.OrderContent().addNewOrder(restaurant, visit, order)
+                    navController.navigate(VisitInfo.route)
                 },
             )
         }

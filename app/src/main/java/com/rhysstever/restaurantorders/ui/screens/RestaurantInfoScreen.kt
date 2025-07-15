@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,9 +34,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.RestaurantInfo
-import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.EditableText
@@ -54,7 +55,8 @@ fun RestaurantInfoScreen(
     onRestaurantNameValueChange: (String) -> Unit,
     onFavoriteRestaurantClick: (Restaurant) -> Unit,
     onKeyboardDone: (String) -> Unit,
-    onRemoveOrder: (Order) -> Unit
+    onVisitSelected: (Visit) -> Unit,
+    onRemoveVisit: (Visit) -> Unit
 ) {
     ScreenScaffold(
         currentScreen = RestaurantInfo,
@@ -95,14 +97,14 @@ fun RestaurantInfoScreen(
                     onKeyboardDone = { onKeyboardDone(restaurantName) }
                 )
 
-                if(currentSelectedRestaurant.orders.isNotEmpty()) {
-                    // Order list for the selected restaurant
-                    OrdersList(
-                        ordersList = currentSelectedRestaurant.orders.reversed(),
-                        onRemoveOrder = onRemoveOrder
+                if(currentSelectedRestaurant.visits.isNotEmpty()) {
+                    VisitsList(
+                        visits = currentSelectedRestaurant.visits.reversed(),
+                        onVisitSelected = onVisitSelected,
+                        onRemoveVisit = onRemoveVisit
                     )
                 } else {
-                    NoOrdersList()
+                    NoVisitsList()
                 }
             }
         } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
@@ -177,7 +179,7 @@ fun RestaurantInfoScreenTitle(
 }
 
 @Composable
-private fun NoOrdersList() {
+private fun NoVisitsList() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -186,16 +188,17 @@ private fun NoOrdersList() {
         Icon(imageVector = Icons.Default.Add, contentDescription = null)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource(R.string.add_an_order),
+            text = stringResource(R.string.add_a_visit),
             style = Typography.bodyLarge
         )
     }
 }
 
 @Composable
-private fun OrdersList(
-    ordersList: List<Order>,
-    onRemoveOrder: (Order) -> Unit
+private fun VisitsList(
+    visits: List<Visit>,
+    onVisitSelected: (Visit) -> Unit,
+    onRemoveVisit: (Visit) -> Unit
 ) {
     LazyColumn {
         item {
@@ -205,21 +208,25 @@ private fun OrdersList(
             )
         }
         items(
-            count = ordersList.size
-        ) { currentOrder ->
-            OrderListItem(
-                order = ordersList[currentOrder],
-                onRemoveOrder = onRemoveOrder
+            count = visits.size
+        ) { currentVisit ->
+            VisitListItem(
+                visit = visits[currentVisit],
+                onVisitSelected = onVisitSelected,
+                onRemoveVisit = onRemoveVisit
             )
         }
     }
 }
 
 @Composable
-private fun OrderListItem(
-    order: Order,
-    onRemoveOrder: (Order) -> Unit
+private fun VisitListItem(
+    visit: Visit,
+    onVisitSelected: (Visit) -> Unit,
+    onRemoveVisit: (Visit) -> Unit,
 ) {
+    val isDeleteVisitDialogShowing = remember { mutableStateOf(false) }
+
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -228,22 +235,28 @@ private fun OrderListItem(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        val isDeleteOrderDialogShowing = remember { mutableStateOf(false) }
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = order.name,
+                text = visit.name,
                 style = Typography.titleLarge
             )
-            AccessibleIcon(
-                imageVector = Icons.Default.Close,
-                contentDescription = stringResource(R.string.delete_order),
-            ) {
-                isDeleteOrderDialogShowing.value = true
+            Row {
+                AccessibleIcon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = stringResource(R.string.visit_info),
+                ) {
+                    onVisitSelected(visit)
+                }
+                AccessibleIcon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.delete_visit),
+                ) {
+                    isDeleteVisitDialogShowing.value = true
+                }
             }
         }
         Row(
@@ -251,7 +264,7 @@ private fun OrderListItem(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            order.rating?.let {
+            visit.rating?.let {
                 Row(
                     modifier = Modifier.height(24.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -259,38 +272,41 @@ private fun OrderListItem(
                     repeat(it) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "${it} ${pluralStringResource(R.plurals.stars, it, it)}",
+                            contentDescription = "$it ${pluralStringResource(R.plurals.stars, it, it)}",
                             modifier = Modifier.requiredSize(16.dp)
                         )
                     }
                 }
             }
-            order.dateOrdered?.let {
+            visit.dateVisited?.let {
                 Text(
-                    text = "${stringResource(R.string.date_ordered)}: ${displayDate(it)}",
+                    text = "${stringResource(R.string.date_visited)}: ${displayDate(it)}",
                     style = Typography.bodyLarge
                 )
             }
         }
 
         Text(
-            text = order.notes,
+            text = visit.notes,
             style = Typography.bodyLarge
         )
 
-        if(isDeleteOrderDialogShowing.value) {
+        if(isDeleteVisitDialogShowing.value) {
             CustomAlertDialog(
-                onDismiss = { isDeleteOrderDialogShowing.value = false },
-                onConfirm = { onRemoveOrder(order) },
-                title = stringResource(R.string.delete_order_title),
-                body = stringResource(R.string.delete_order_body)
+                onDismiss = { isDeleteVisitDialogShowing.value = false },
+                onConfirm = {
+                    onRemoveVisit(visit)
+                    isDeleteVisitDialogShowing.value = false
+                },
+                title = stringResource(R.string.delete_visit_title),
+                body = stringResource(R.string.delete_visit_body)
             )
         }
     }
 }
 
 @Composable
-private fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
+fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -317,7 +333,8 @@ fun RestaurantInfoScreenPreview() {
         onRestaurantNameValueChange = {},
         onFavoriteRestaurantClick = {},
         onKeyboardDone = {},
-        onRemoveOrder = {},
+        onVisitSelected = {},
+        onRemoveVisit = {},
     )
 }
 
@@ -332,6 +349,7 @@ fun RestaurantInfoScreenNoSelectionPreview() {
         onRestaurantNameValueChange = {},
         onFavoriteRestaurantClick = {},
         onKeyboardDone = {},
-        onRemoveOrder = {},
+        onVisitSelected = {},
+        onRemoveVisit = {},
     )
 }

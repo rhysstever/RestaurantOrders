@@ -16,8 +16,14 @@ data object RestaurantInfo : RestaurantDestination {
     override val route = "Restaurant Info"
 }
 
+data object AddVisit : RestaurantDestination {
+    override val route = "Add Visit"
+}
+
+data object VisitInfo : RestaurantDestination {
+    override val route = "Visit Info"
+}
+
 data object AddOrder : RestaurantDestination {
     override val route = "Add Order"
 }
-
-val restaurantTabRowScreens = listOf(Home, AddRestaurant, RestaurantInfo, AddOrder)
