@@ -170,7 +170,7 @@ private fun OrderListItem(
                     repeat(it) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "${it} ${pluralStringResource(R.plurals.stars, it, it)}",
+                            contentDescription = "$it ${pluralStringResource(R.plurals.stars, it, it)}",
                             modifier = Modifier.requiredSize(16.dp)
                         )
                     }

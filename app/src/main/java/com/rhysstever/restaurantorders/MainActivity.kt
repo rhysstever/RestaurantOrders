@@ -113,7 +113,7 @@ fun RestaurantNavHost(
                     restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
                 },
                 onReplaceVisit = { restaurant, oldVisit, newVisit ->
-                    restaurantViewModel.VisitContent().replaceSelectedVisit(restaurant, oldVisit, newVisit)
+                    restaurantViewModel.VisitContent().replaceVisit(restaurant, oldVisit, newVisit)
                     navController.navigate(RestaurantInfo.route)
                 },
                 onAddNewVisit = { restaurant, visit ->
