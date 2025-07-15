@@ -249,34 +249,33 @@ class RestaurantViewModel : ViewModel() {
 
         fun removeVisit(visit: Visit) {
             _uiState.update { currentState ->
-                currentState.selectedRestaurant?.let { currentRestaurant ->
-                    // Get the index of the current selected restaurant
-                    val restaurantIndex = currentState.restaurants.indexOf(currentRestaurant)
+                // Ensure there is a current restaurant and it exists in the list of restaurants
+                if(currentState.selectedRestaurant == null) {
+                    return@update currentState
+                }
+                val restaurantIndex = currentState.restaurants.indexOf(currentState.selectedRestaurant)
+                if(restaurantIndex == -1) {
+                    return@update currentState
+                }
 
-                    // Check if the restaurant index is valid and if the order exists in the restaurant
-                    if(restaurantIndex != -1 && currentRestaurant.visits.contains(visit)) {
-                        // Get the list of orders and remove the given order
-                        val newOrderList = currentRestaurant.visits.toMutableList()
-                        newOrderList.remove(visit)
+                // Get the list of orders and remove the given order
+                val newOrderList = currentState.selectedRestaurant.visits.toMutableList()
+                newOrderList.remove(visit)
 
-                        // Create a new restaurant with the updated order list
-                        val newRestaurant = currentRestaurant.copy(
-                            visits = newOrderList.toList()
-                        )
+                // Create a new restaurant with the updated order list
+                val newRestaurant = currentState.selectedRestaurant.copy(
+                    visits = newOrderList.toList()
+                )
 
-                        // Get the list of all restaurants and update it with the new restaurant
-                        val newRestaurantList = currentState.restaurants.toMutableList()
-                        newRestaurantList[restaurantIndex] = newRestaurant
+                // Get the list of all restaurants and update it with the new restaurant
+                val newRestaurantList = currentState.restaurants.toMutableList()
+                newRestaurantList[restaurantIndex] = newRestaurant
 
-                        // Update the restaurants list and selected restaurant
-                        currentState.copy(
-                            restaurants = newRestaurantList,
-                            selectedRestaurant = newRestaurantList[restaurantIndex]
-                        )
-                    } else {
-                        currentState
-                    }
-                } ?: currentState
+                // Update the restaurants list and selected restaurant
+                currentState.copy(
+                    restaurants = newRestaurantList,
+                    selectedRestaurant = newRestaurant
+                )
             }
         }
 
@@ -302,40 +301,12 @@ class RestaurantViewModel : ViewModel() {
             }
         }
 
-        fun replaceSelectedVisit(newVisit: Visit) {
+        fun replaceSelectedVisit(restaurant: Restaurant, oldVisit: Visit, newVisit: Visit) {
+            removeVisit(oldVisit)
 
+            addVisit(restaurant, newVisit)
 
-            // Remove the current visit
-            _uiState.update { currentState ->
-                // Find the restaurant index, exiting early if not found
-                val restaurantIndex = currentState.restaurants.indexOf(currentState.selectedRestaurant)
-                if(restaurantIndex == -1) {
-                    return@update currentState
-                }
-
-                // Find the visit index, exiting early if not found
-                val visitIndex = currentState.restaurants[restaurantIndex].visits.indexOf(currentState.selectedVisit)
-                if(visitIndex == -1) {
-                    return@update currentState
-                }
-
-                // Replace the currently selected visit with the new visit
-                val newVisitList = currentState.restaurants[restaurantIndex].visits.toMutableList()
-                newVisitList[visitIndex] = newVisit
-
-                // Sort visits by date visited
-                val sortedVisitsList = newVisitList.toList().sortedBy { it.dateVisited }
-
-                // Update the restaurants list with the new visits list
-                val newRestaurantList = currentState.restaurants.toMutableList()
-                newRestaurantList[restaurantIndex] = newRestaurantList[restaurantIndex].copy(visits = sortedVisitsList)
-
-                currentState.copy(
-                    restaurants = newRestaurantList,
-                    selectedRestaurant = newRestaurantList[restaurantIndex],
-                    selectedVisit = newVisit
-                )
-            }
+            selectVisit(newVisit)
         }
     }
 

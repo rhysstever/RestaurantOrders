@@ -28,6 +28,7 @@
 
     <!--Add Visit Screen-->
     <string name="add_visit">Add Visit</string>
+    <string name="update_visit">Update Visit</string>
     <string name="enter_visit_name">Enter Visit Name</string>
     <string name="invalid_visit_name">Invalid Visit Name</string>
     <string name="date_visited_picker_header">Date Visited</string>

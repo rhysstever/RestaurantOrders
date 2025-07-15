@@ -35,6 +35,7 @@ fun AddVisitScreen(
     onBack: () -> Unit,
     onNewVisitInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
+    onReplaceVisit: (Restaurant, Visit, Visit) -> Unit,
     onAddNewVisit: (Restaurant, Visit) -> Unit
 ) {
     ScreenScaffold(
@@ -49,6 +50,7 @@ fun AddVisitScreen(
                 isVisitNameInputInvalid = state.isNewVisitInputInvalid,
                 onNewVisitInput = onNewVisitInput,
                 onKeyboardDone = onKeyboardDone,
+                onReplaceVisit = onReplaceVisit,
                 onAddNewVisit = onAddNewVisit,
                 modifier = Modifier.padding(innerPadding)
             )
@@ -64,10 +66,11 @@ private fun AddVisitScreenContent(
     isVisitNameInputInvalid: Boolean?,
     onNewVisitInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
+    onReplaceVisit: (Restaurant, Visit, Visit) -> Unit,
     onAddNewVisit: (Restaurant, Visit) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (visitName, onVisitNameChange) = remember { mutableStateOf(visit?.name ?: "Visit") }
+    val (visitName, onVisitNameChange) = remember { mutableStateOf(visit?.name ?: "") }
     var rating by remember { mutableStateOf(visit?.rating) }
     val dateVisited = rememberDatePickerState(
         initialSelectedDateMillis = visit?.dateVisited?.toEpochDay(),
@@ -135,12 +138,17 @@ private fun AddVisitScreenContent(
                     }
                 )
 
-                // Add the new order to the visit of the restaurant
-                onAddNewVisit(restaurant, newVisit)
+                // If a current visit is selected, replace it with the new selections,
+                // Otherwise create a new visit
+                visit?.let { oldVisit ->
+                    onReplaceVisit(restaurant, oldVisit, newVisit)
+                } ?: onAddNewVisit(restaurant, newVisit)
             },
             enabled = isVisitNameInputInvalid?.let { !it } ?: false,
         ) {
-            Text(text = stringResource(R.string.add_visit))
+            Text(text = visit?.let {
+                stringResource(R.string.update_visit)
+            } ?: stringResource(R.string.add_visit))
         }
     }
 }

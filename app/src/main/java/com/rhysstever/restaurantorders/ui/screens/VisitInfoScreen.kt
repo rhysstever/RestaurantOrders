@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Star
@@ -34,7 +33,6 @@ import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
-import com.rhysstever.restaurantorders.ui.components.EditableText
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.demoUIStateSelected
 import com.rhysstever.restaurantorders.ui.theme.Typography
@@ -59,26 +57,6 @@ fun VisitInfoScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-//                VisitInfoScreenTitle(
-//                    isEditing = isEditingVisitName.value,
-//                    onToggleEditingVisitName = {
-//                        // If the restaurant's name is being edited, rename the restaurant
-//                        if (isEditingVisitName.value) {
-//                            onVisitNameChange(visitName)
-//                            onVisitRename(visitName)
-//                        }
-//                        // Toggle the editing state
-//                        isEditingVisitName.value = !isEditingVisitName.value
-//                    },
-//                    visitInput = visitName,
-//                    onVisitNameChange = { newVisitName ->
-//                        onVisitNameChange(newVisitName)
-//                        onVisitNameValueChange(newVisitName)
-//                    },
-//                    isInputInvalid = state.isVisitRenameInputInvalid,
-//                    onKeyboardDone = { onKeyboardDone(visitName) },
-//                )
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -106,53 +84,6 @@ fun VisitInfoScreen(
             }
 
         } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
-    }
-}
-
-@Composable
-fun VisitInfoScreenTitle(
-    isEditing: Boolean,
-    onToggleEditingVisitName: () -> Unit,
-    visitInput: String,
-    onVisitNameChange: (String) -> Unit,
-    isInputInvalid: Boolean,
-    onKeyboardDone: () -> Unit = {},
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        EditableText(
-            isBeingEdited = isEditing,
-            text = visitInput,
-            onTextChange = onVisitNameChange,
-            isInputInvalid = isInputInvalid,
-            label = if (isInputInvalid) {
-                if (visitInput.isBlank()) {
-                    stringResource(R.string.invalid_restaurant_name)
-                } else {
-                    stringResource(R.string.restaurant_name_exists)
-                }
-            } else {
-                stringResource(R.string.enter_new_restaurant_name)
-            },
-            onKeyboardDone = onKeyboardDone
-        )
-        if(isEditing) {
-            AccessibleIcon(
-                imageVector = Icons.Default.Check,
-                contentDescription = stringResource(R.string.submit_rename),
-                enabled = !isInputInvalid,
-                onClick = onToggleEditingVisitName
-            )
-        } else {
-            AccessibleIcon(
-                imageVector = Icons.Default.Create,
-                contentDescription = stringResource(R.string.rename_restaurant),
-                onClick = onToggleEditingVisitName
-            )
-        }
     }
 }
 

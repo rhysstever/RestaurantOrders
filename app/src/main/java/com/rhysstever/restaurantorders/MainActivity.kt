@@ -112,6 +112,10 @@ fun RestaurantNavHost(
                 onKeyboardDone = { newVisitName ->
                     restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
                 },
+                onReplaceVisit = { restaurant, oldVisit, newVisit ->
+                    restaurantViewModel.VisitContent().replaceSelectedVisit(restaurant, oldVisit, newVisit)
+                    navController.navigate(RestaurantInfo.route)
+                },
                 onAddNewVisit = { restaurant, visit ->
                     restaurantViewModel.VisitContent().addVisit(restaurant, visit)
                     navController.navigate(RestaurantInfo.route)

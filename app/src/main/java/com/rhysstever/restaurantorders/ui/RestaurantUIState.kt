@@ -21,7 +21,7 @@ data class Restaurant(
 )
 
 data class Visit(
-    val name: String = "Visit",
+    val name: String,
     val orders: List<Order> = emptyList(),
     val dateVisited: LocalDate? = null,
     val rating: Int? = null,
@@ -46,6 +46,7 @@ val demoUIState = RestaurantUIState(
             isFavorite = true,
             visits = listOf(
                 Visit(
+                    name = "Visit 1",
                     orders = listOf(
                         Order(
                             name = "Birria Tacos",
@@ -62,6 +63,7 @@ val demoUIState = RestaurantUIState(
                     notes = "Great food, service, and atmosphere!"
                 ),
                 Visit(
+                    name = "Visit 2",
                     orders = listOf(
                         Order(
                             name = "Chicken Enchiladas",
@@ -83,7 +85,7 @@ val demoUIState = RestaurantUIState(
             name = "Burger Joint",
             isFavorite = false,
             visits = listOf(
-                Visit()
+                Visit(name = "Visit 1")
             )
         )
     ),
