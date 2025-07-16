@@ -1,6 +1,5 @@
 package com.rhysstever.restaurantorders.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.AddVisit
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.CustomDatePicker
@@ -39,22 +37,21 @@ fun AddVisitScreen(
     onBack: () -> Unit,
     onNewVisitInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
-    onReplaceVisit: (Restaurant, Visit, Visit) -> Unit,
-    onAddNewVisit: (Restaurant, Visit) -> Unit
+    onEditVisit: (Visit) -> Unit,
+    onAddNewVisit: (Visit) -> Unit
 ) {
     ScreenScaffold(
         currentScreen = AddVisit,
         onBack = onBack,
         onAdd = null,
     ) { innerPadding ->
-        state.selectedRestaurant?.let { currentlySelectedRestaurant ->
+        state.selectedRestaurant?.let { _ ->
             AddVisitScreenContent(
-                restaurant = currentlySelectedRestaurant,
                 visit = state.selectedVisit,
                 isVisitNameInputInvalid = state.isNewVisitInputInvalid,
                 onNewVisitInput = onNewVisitInput,
                 onKeyboardDone = onKeyboardDone,
-                onReplaceVisit = onReplaceVisit,
+                onEditVisit = onEditVisit,
                 onAddNewVisit = onAddNewVisit,
                 modifier = Modifier.padding(innerPadding)
             )
@@ -65,13 +62,12 @@ fun AddVisitScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddVisitScreenContent(
-    restaurant: Restaurant,
     visit: Visit?,
     isVisitNameInputInvalid: Boolean?,
     onNewVisitInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
-    onReplaceVisit: (Restaurant, Visit, Visit) -> Unit,
-    onAddNewVisit: (Restaurant, Visit) -> Unit,
+    onEditVisit: (Visit) -> Unit,
+    onAddNewVisit: (Visit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val (visitName, onVisitNameChange) = remember { mutableStateOf(visit?.name ?: "") }
@@ -139,16 +135,17 @@ private fun AddVisitScreenContent(
                 // Create a new Visit object
                 val newVisit = Visit(
                     name = visitName,
+                    orders = visit?.orders ?: emptyList(),
                     rating = rating,
                     notes = notes,
                     dateVisited = dateVisited.selectedDateMillis?.let { convertMillisToDate(it) }
                 )
 
-                // If a current visit is selected, replace it with the new selections,
+                // If a current visit is selected, edit it with the new selections,
                 // Otherwise create a new visit
-                visit?.let { oldVisit ->
-                    onReplaceVisit(restaurant, oldVisit, newVisit)
-                } ?: onAddNewVisit(restaurant, newVisit)
+                visit?.let { _ ->
+                    onEditVisit(newVisit)
+                } ?: onAddNewVisit(newVisit)
             },
             enabled = isVisitNameInputInvalid?.let { !it } ?: false,
         ) {

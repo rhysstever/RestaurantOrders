@@ -112,12 +112,12 @@ fun RestaurantNavHost(
                 onKeyboardDone = { newVisitName ->
                     restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
                 },
-                onReplaceVisit = { restaurant, oldVisit, newVisit ->
-                    restaurantViewModel.VisitContent().replaceVisit(restaurant, oldVisit, newVisit)
+                onEditVisit = { updatedVisit ->
+                    restaurantViewModel.VisitContent().editSelectedVisit(updatedVisit = updatedVisit)
                     navController.navigate(VisitInfo.route)
                 },
-                onAddNewVisit = { restaurant, visit ->
-                    restaurantViewModel.VisitContent().addVisit(restaurant, visit)
+                onAddNewVisit = { visit ->
+                    restaurantViewModel.VisitContent().addVisit(visit)
                     navController.navigate(RestaurantInfo.route)
                 }
             )
@@ -145,8 +145,8 @@ fun RestaurantNavHost(
                 onKeyboardDone = { newOrderName ->
                     restaurantViewModel.OrderContent().checkNewOrderInput(newOrderName)
                 },
-                onAddNewOrder = { restaurant, visit, order ->
-                    restaurantViewModel.OrderContent().addNewOrder(restaurant, visit, order)
+                onAddNewOrder = { order ->
+                    restaurantViewModel.OrderContent().addNewOrder(order)
                     navController.navigate(VisitInfo.route)
                 },
             )

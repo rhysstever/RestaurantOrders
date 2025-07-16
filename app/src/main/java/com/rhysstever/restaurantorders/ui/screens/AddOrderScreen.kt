@@ -22,9 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.AddOrder
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Order
-import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantUIState
-import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
@@ -38,18 +36,16 @@ fun AddOrderScreen(
     onBack: () -> Unit,
     onNewOrderInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
-    onAddNewOrder: (Restaurant, Visit, Order) -> Unit,
+    onAddNewOrder: (Order) -> Unit,
 ) {
     ScreenScaffold(
         currentScreen = AddOrder,
         onBack = onBack,
         onAdd = null,
     ) { innerPadding ->
-        state.selectedRestaurant?.let { currentlySelectedRestaurant ->
-            state.selectedVisit?.let { currentlySelectedVisit ->
+        state.selectedRestaurant?.let { _ ->
+            state.selectedVisit?.let { _ ->
                 AddOrderScreenContent(
-                    restaurant = currentlySelectedRestaurant,
-                    visit = currentlySelectedVisit,
                     isOrderNameInputInvalid = state.isNewOrderInputInvalid,
                     onNewOrderInput = onNewOrderInput,
                     onKeyboardDone = onKeyboardDone,
@@ -64,12 +60,10 @@ fun AddOrderScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddOrderScreenContent(
-    restaurant: Restaurant,
-    visit: Visit,
     isOrderNameInputInvalid: Boolean?,
     onNewOrderInput: (String) -> Unit,
     onKeyboardDone: (String) -> Unit,
-    onAddNewOrder: (Restaurant, Visit, Order) -> Unit,
+    onAddNewOrder: (Order) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val (orderName, onOrderNameChange) = remember { mutableStateOf("") }
@@ -133,7 +127,7 @@ private fun AddOrderScreenContent(
                 )
 
                 // Add the new order to the visit of the restaurant
-                onAddNewOrder(restaurant, visit, newOrder)
+                onAddNewOrder(newOrder)
             },
             enabled = isOrderNameInputInvalid?.let { !it } ?: false,
         ) {
@@ -184,7 +178,7 @@ fun AddOrderScreenPreview() {
         onBack = { },
         onNewOrderInput = { },
         onKeyboardDone = { },
-        onAddNewOrder = { _, _, _ -> },
+        onAddNewOrder = { _ -> },
     )
 }
 
@@ -196,6 +190,6 @@ fun AddOrderScreenNoSelectionPreview() {
         onBack = { },
         onNewOrderInput = { },
         onKeyboardDone = { },
-        onAddNewOrder = { _, _, _ -> },
+        onAddNewOrder = { _ -> },
     )
 }

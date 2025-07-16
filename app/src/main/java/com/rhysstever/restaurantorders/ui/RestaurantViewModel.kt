@@ -215,71 +215,101 @@ class RestaurantViewModel : ViewModel() {
             }
         }
 
-        fun addVisit(restaurant: Restaurant, newVisit: Visit) {
+        fun addVisit(newVisit: Visit) {
             _uiState.update { currentState ->
-                val restaurantIndex = currentState.restaurants.indexOf(restaurant)
-
-                if(restaurantIndex != -1) {
-                    val newRestaurantList = currentState.restaurants.toMutableList()
-                    val newVisitList = currentState.restaurants[restaurantIndex].visits.toMutableList()
-
-                    if(newVisitList.contains(newVisit)) {
-                        // If the order already exists, return the current state
-                        Log.v("RAS Error: Adding New Visit", "New Visit already exists: ${restaurant.visits}")
-                        return@update currentState
-                    } else {
-                        // If the order is a new order, add it to the list
-                        newVisitList.add(newVisit)
-                    }
+                currentState.selectedRestaurant?.let { selectedRestaurant ->
+                    val newVisitList = selectedRestaurant.visits.toMutableList()
+                    newVisitList.add(newVisit)
 
                     // Update the restaurant with the new visit
                     // And sort the visits list by rating, then by name
-                    val newRestaurant = restaurant.copy(
+                    val newRestaurant = selectedRestaurant.copy(
                         visits = newVisitList.toList().sortedWith(compareBy(Visit::rating, Visit::name))
                     )
-                    newRestaurantList[restaurantIndex] = newRestaurant
+
+                    // Create a new list of restaurants with the updated restaurant
+                    val restaurantsList = currentState.restaurants.toMutableList()
+                    restaurantsList.remove(selectedRestaurant)
+                    restaurantsList.add(newRestaurant)
 
                     currentState.copy(
-                        restaurants = newRestaurantList,
-                        selectedRestaurant = newRestaurantList[restaurantIndex]
+                        restaurants = restaurantsList,
+                        selectedRestaurant = newRestaurant
                     )
-                } else {
-                    currentState
+                } ?: run {
+                    Log.v("RAS Error", "Error adding new Visit. No restaurant selected.")
+                    return@update currentState
+                }
+            }
+        }
+
+        fun editSelectedVisit(updatedVisit: Visit) {
+            _uiState.update { currentState ->
+                currentState.selectedRestaurant?.let { selectedRestaurant ->
+                    currentState.selectedVisit?.let { selectedVisit ->
+                        // Create a new list of visits with the updated visit, removing the (now) old visit
+                        val visitsList = selectedRestaurant.visits.toMutableList()
+                        visitsList.remove(selectedVisit)
+                        visitsList.add(updatedVisit)
+
+                        // Create a new restaurant with the updated visits list
+                        val newRestaurant = selectedRestaurant.copy(
+                            visits = visitsList.toList().sortedWith(compareBy(Visit::rating, Visit::name))
+                        )
+
+                        // Create a new list of restaurants with the updated restaurant
+                        val restaurantsList = currentState.restaurants.toMutableList()
+                        restaurantsList.remove(selectedRestaurant)
+                        restaurantsList.add(newRestaurant)
+
+                        currentState.copy(
+                            restaurants = restaurantsList.toList().sortedBy { it.name.lowercase(Locale.ROOT) },
+                            selectedRestaurant = newRestaurant,
+                            selectedVisit = updatedVisit
+                        )
+                    } ?: run {
+                        Log.v("RAS Error", "Error editing Visit. No visit selected.")
+                        return@update currentState
+                    }
+                } ?: run {
+                    Log.v("RAS Error", "Error editing Visit. No restaurant selected.")
+                    return@update currentState
                 }
             }
         }
 
         fun removeVisit(visit: Visit) {
             _uiState.update { currentState ->
-                // Ensure there is a current restaurant and it exists in the list of restaurants
-                if(currentState.selectedRestaurant == null) {
-                    Log.v("RAS Error: Removing Visit", "No restaurant selected.")
+                currentState.selectedRestaurant?.let { selectedRestaurant ->
+                    // Get the list of visits and remove the given visit
+                    val newVisitList = currentState.selectedRestaurant.visits.toMutableList()
+                    newVisitList.remove(visit)
+
+                    // Create a new restaurant with the updated order list
+                    val newRestaurant = currentState.selectedRestaurant.copy(
+                        visits = newVisitList.toList()
+                    )
+
+                    // Create a new list of restaurants with the updated restaurant
+                    val restaurantsList = currentState.restaurants.toMutableList()
+                    restaurantsList.remove(selectedRestaurant)
+                    restaurantsList.add(newRestaurant)
+
+                    // Update the restaurants list and selected restaurant
+                    // Deselect the visit if it was the selected visit
+                    currentState.copy(
+                        restaurants = restaurantsList,
+                        selectedRestaurant = newRestaurant,
+                        selectedVisit = if(currentState.selectedVisit == visit) {
+                            null
+                        } else {
+                            currentState.selectedVisit
+                        }
+                    )
+                } ?: run {
+                    Log.v("RAS Error", "Error Removing Visit. No restaurant selected.")
                     return@update currentState
                 }
-                val restaurantIndex = currentState.restaurants.indexOf(currentState.selectedRestaurant)
-                if(restaurantIndex == -1) {
-                    Log.v("RAS Error: Removing Visit", "Restaurant selection: ${currentState.selectedRestaurant}. Restaurant does not contain visit")
-                    return@update currentState
-                }
-
-                // Get the list of visits and remove the given visit
-                val newVisitList = currentState.selectedRestaurant.visits.toMutableList()
-                newVisitList.remove(visit)
-
-                // Create a new restaurant with the updated order list
-                val newRestaurant = currentState.selectedRestaurant.copy(
-                    visits = newVisitList.toList()
-                )
-
-                // Get the list of all restaurants and update it with the new restaurant
-                val newRestaurantList = currentState.restaurants.toMutableList()
-                newRestaurantList[restaurantIndex] = newRestaurant
-
-                // Update the restaurants list and selected restaurant
-                currentState.copy(
-                    restaurants = newRestaurantList,
-                    selectedRestaurant = newRestaurant
-                )
             }
         }
 
@@ -289,25 +319,12 @@ class RestaurantViewModel : ViewModel() {
                     if(currentState.selectedRestaurant != null
                         && currentState.selectedRestaurant.visits.contains(visit)) {
                         // Set the given restaurant as the selected restaurant
-                        currentState.copy(
-                            selectedVisit = visit
-                        )
+                        currentState.copy(selectedVisit = visit)
                     } else {
-                        currentState.copy(
-                            selectedVisit = null
-                        )
+                        currentState.copy(selectedVisit = null)
                     }
-                } ?: run {
-                    currentState.copy(
-                        selectedVisit = null
-                    )
-                }
+                } ?: currentState.copy(selectedVisit = null)
             }
-        }
-
-        fun replaceVisit(restaurant: Restaurant, oldVisit: Visit, newVisit: Visit) {
-            removeVisit(visit = oldVisit)
-            addVisit(restaurant = restaurant, newVisit = newVisit)
         }
     }
 
@@ -338,50 +355,51 @@ class RestaurantViewModel : ViewModel() {
             }
         }
 
-        fun addNewOrder(restaurant: Restaurant, visit: Visit, order: Order) {
+        fun addNewOrder(order: Order) {
             _uiState.update { currentState ->
-                val restaurantIndex = currentState.restaurants.indexOf(restaurant)
+                currentState.selectedRestaurant?.let { selectedRestaurant ->
+                    currentState.selectedVisit?.let { selectedVisit ->
+                        val newOrderList = selectedVisit.orders.toMutableList()
 
-                if(restaurantIndex == -1) {
-                    // If the restaurant does not exist, return the current state
+                        if(newOrderList.contains(order)) {
+                            // If the order already exists, return the current state
+                            Log.v("RAS Error", "Error Adding new Order. New order already exists: ${selectedVisit.orders}")
+                            return@update currentState
+                        } else {
+                            // If the order is a new order, add it to the list
+                            newOrderList.add(order)
+                        }
+
+                        // Update the visit with the new order
+                        // And sort the orders list by rating, then by name
+                        val newVisit = selectedVisit.copy(
+                            orders = newOrderList.toList().sortedWith(compareBy(Order::rating, Order::name))
+                        )
+                        val newVisitList = selectedRestaurant.visits.toMutableList()
+                        newVisitList.remove(selectedVisit)
+                        newVisitList.add(newVisit)
+
+                        val newRestaurant = selectedRestaurant.copy(
+                            visits = newVisitList
+                        )
+
+                        val newRestaurantList = currentState.restaurants.toMutableList()
+                        newRestaurantList.remove(selectedRestaurant)
+                        newRestaurantList.add(newRestaurant)
+
+                        currentState.copy(
+                            restaurants = newRestaurantList,
+                            selectedRestaurant = newRestaurant,
+                            selectedVisit = newVisit
+                        )
+                    } ?: run {
+                        Log.v("RAS Error", "Error Adding new Order. No visit selected.")
+                        return@update currentState
+                    }
+                } ?: run {
+                    Log.v("RAS Error", "Error Adding new Order. No restaurant selected.")
                     return@update currentState
                 }
-
-                val newRestaurantList = currentState.restaurants.toMutableList()
-                val visitIndex = currentState.restaurants[restaurantIndex].visits.indexOf(visit)
-
-                if(visitIndex == -1) {
-                    // If the visit does not exist, return the current state
-                    return@update currentState
-                }
-
-                val newVisitList = currentState.restaurants[restaurantIndex].visits.toMutableList()
-                val newOrderList = currentState.restaurants[restaurantIndex].visits[visitIndex].orders.toMutableList()
-
-                if(newOrderList.contains(order)) {
-                    // If the order already exists, return the current state
-                    Log.v("RAS Error", "New order already exists: ${visit.orders}")
-                    return@update currentState
-                } else {
-                    // If the order is a new order, add it to the list
-                    newOrderList.add(order)
-                }
-
-                // Update the visit with the new order
-                // And sort the orders list by rating, then by name
-                val newVisit = visit.copy(
-                    orders = newOrderList.toList().sortedWith(compareBy(Order::rating, Order::name))
-                )
-                newVisitList[visitIndex] = newVisit
-                newRestaurantList[restaurantIndex] = restaurant.copy(
-                    visits = newVisitList.toList()
-                )
-
-                currentState.copy(
-                    restaurants = newRestaurantList,
-                    selectedRestaurant = newRestaurantList[restaurantIndex],
-                    selectedVisit = newVisitList[visitIndex]
-                )
             }
         }
 
@@ -392,7 +410,7 @@ class RestaurantViewModel : ViewModel() {
                     || !currentState.selectedVisit.orders.contains(order)) {
                     // Exit early if there is no selected restaurant or visit
                     // Also exit early if the selected visit does not contain the order to remove
-                    Log.v("RAS Error: Removing Order", "Restaurant selection: ${currentState.selectedRestaurant}. Visit Selection: ${currentState.selectedVisit}. If both have a value, then the visit does not contain the order to remove")
+                    Log.v("RAS Error", "Error Removing Order. Restaurant selection: ${currentState.selectedRestaurant}. Visit Selection: ${currentState.selectedVisit}. If both have a value, then the visit does not contain the order to remove")
                     return@update currentState
                 }
 
