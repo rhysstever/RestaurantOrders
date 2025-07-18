@@ -38,6 +38,7 @@
     <!--Visit Info Screen-->
     <string name="no_visit_text">No visit selected. Go back to the restaurant info screen and select a visit</string>
     <string name="edit_visit">Edit Visit</string>
+    <string name="overall_rating">Overall Rating</string>
     <string name="orders">Orders</string>
     <string name="add_an_order">Add an Order</string>
     <string name="date_ordered">Date Ordered</string>

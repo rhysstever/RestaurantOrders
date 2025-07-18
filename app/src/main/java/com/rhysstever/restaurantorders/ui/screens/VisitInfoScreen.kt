@@ -31,9 +31,11 @@ import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.VisitInfo
 import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.components.displayDate
 import com.rhysstever.restaurantorders.ui.demoUIStateSelected
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
@@ -51,39 +53,77 @@ fun VisitInfoScreen(
         onAdd = state.selectedRestaurant?.let { onAdd },
     ) { innerPadding ->
         state.selectedVisit?.let { currentlySelectedVisit ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = currentlySelectedVisit.name,
-                        style = Typography.headlineLarge,
-                    )
-                    AccessibleIcon(
-                        imageVector = Icons.Default.Create,
-                        contentDescription = stringResource(R.string.edit_visit),
-                        onClick = onEditVisit
-                    )
-                }
+            VisitInfoScreenContent(
+                visit = currentlySelectedVisit,
+                onEditVisit = onEditVisit,
+                onRemoveOrder = onRemoveOrder,
+                modifier = Modifier.padding(innerPadding)
+            )
+        } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
+    }
+}
 
-                if(currentlySelectedVisit.orders.isNotEmpty()) {
-                    OrdersList(
-                        orders = currentlySelectedVisit.orders.reversed(),
-                        onRemoveOrder = onRemoveOrder
+@Composable
+private fun VisitInfoScreenContent(
+    visit: Visit,
+    onEditVisit: () -> Unit,
+    onRemoveOrder: (Order) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = visit.name,
+                style = Typography.headlineLarge,
+            )
+            AccessibleIcon(
+                imageVector = Icons.Default.Create,
+                contentDescription = stringResource(R.string.edit_visit),
+                onClick = onEditVisit
+            )
+        }
+
+        visit.rating?.let {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "${stringResource(R.string.overall_rating)}: ",
+                    style = Typography.bodyLarge
+                )
+                repeat(it) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "$it ${pluralStringResource(R.plurals.stars, it, it)}",
+                        modifier = Modifier.requiredSize(16.dp)
                     )
-                } else {
-                    NoOrdersList()
                 }
             }
+        }
+        visit.dateVisited?.let {
+            Text(
+                text = "${stringResource(R.string.date_visited)}: ${displayDate((it))}",
+                style = Typography.bodyLarge
+            )
+        }
+        Text(
+            text = visit.notes,
+            style = Typography.bodyLarge
+        )
 
-        } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
+        if(visit.orders.isNotEmpty()) {
+            OrdersList(
+                orders = visit.orders.reversed(),
+                onRemoveOrder = onRemoveOrder
+            )
+        } else {
+            NoOrdersList()
+        }
     }
 }
 
@@ -112,6 +152,7 @@ private fun OrdersList(
         item {
             Text(
                 text = stringResource(R.string.orders),
+                modifier = Modifier.padding(top = 4.dp),
                 style = Typography.headlineSmall
             )
         }
