@@ -7,35 +7,43 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rhysstever.restaurantorders.AddRestaurant
+import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
-import com.rhysstever.restaurantorders.ui.demoUIState
+import com.rhysstever.restaurantorders.ui.navigation.AddRestaurant
+import com.rhysstever.restaurantorders.ui.navigation.Home
 
 @Composable
 fun AddRestaurantScreen(
-    state: RestaurantUIState,
-    onBack: () -> Unit,
-    checkRestaurantInput: (String) -> Unit,
-    onAddNewRestaurant: (String) -> Unit,
+    navController: NavController,
+    restaurantViewModel: RestaurantViewModel
 ) {
+    val uiState by restaurantViewModel.uiState.collectAsState()
+
     ScreenScaffold(
         currentScreen = AddRestaurant,
-        onBack = onBack,
+        onBack = { navController.navigate(Home.route) },
         onAdd = null,
     ) { innerPadding ->
         AddRestaurantScreenContent(
-            isInputInvalid = state.isNewRestaurantInputInvalid,
-            checkRestaurantInput = checkRestaurantInput,
-            onAddNewRestaurant = onAddNewRestaurant,
+            isInputInvalid = uiState.isNewRestaurantInputInvalid,
+            checkRestaurantInput = { restaurantName ->
+                restaurantViewModel.RestaurantContent().checkNewRestaurantInput(restaurantName)
+            },
+            onAddNewRestaurant = { restaurantName ->
+                restaurantViewModel.RestaurantContent().addRestaurant(restaurantName)
+                navController.navigate(Home.route)
+            },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -90,9 +98,8 @@ private fun AddRestaurantScreenContent(
 @Preview
 @Composable
 private fun AddRestaurantScreenPreview() {
-    AddRestaurantScreen(
-        state = demoUIState.copy(selectedRestaurant = demoUIState.restaurants[0]),
-        onBack = {},
+    AddRestaurantScreenContent(
+        isInputInvalid = false,
         checkRestaurantInput = {},
         onAddNewRestaurant = {}
     )

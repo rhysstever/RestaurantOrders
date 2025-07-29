@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,36 +29,43 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.VisitInfo
 import com.rhysstever.restaurantorders.ui.Order
-import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.displayDate
 import com.rhysstever.restaurantorders.ui.demoUIStateSelected
+import com.rhysstever.restaurantorders.ui.navigation.AddOrder
+import com.rhysstever.restaurantorders.ui.navigation.AddVisit
+import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
+import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun VisitInfoScreen(
-    state: RestaurantUIState,
-    onBack: () -> Unit,
-    onAdd: () -> Unit,
-    onEditVisit: () -> Unit,
-    onRemoveOrder: (Order) -> Unit
+    navController: NavController,
+    restaurantViewModel: RestaurantViewModel
 ) {
+    val uiState by restaurantViewModel.uiState.collectAsState()
+
     ScreenScaffold(
         currentScreen = VisitInfo,
-        onBack = onBack,
-        onAdd = state.selectedRestaurant?.let { onAdd },
+        onBack = { navController.navigate(RestaurantInfo.route) },
+        onAdd = uiState.selectedRestaurant?.let { { navController.navigate(AddOrder.route) } },
     ) { innerPadding ->
-        state.selectedVisit?.let { currentlySelectedVisit ->
+        uiState.selectedVisit?.let { currentlySelectedVisit ->
             VisitInfoScreenContent(
                 visit = currentlySelectedVisit,
-                onEditVisit = onEditVisit,
-                onRemoveOrder = onRemoveOrder,
+                onEditVisit = {
+                    navController.navigate(AddVisit.route)
+                },
+                onRemoveOrder = { orderToRemove ->
+                    restaurantViewModel.OrderContent().removeOrder(orderToRemove)
+                },
                 modifier = Modifier.padding(innerPadding)
             )
         } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
@@ -238,10 +247,8 @@ private fun OrderListItem(
 @Preview
 @Composable
 fun VisitScreenPreview() {
-    VisitInfoScreen(
-        state = demoUIStateSelected,
-        onBack = {},
-        onAdd = {},
+    VisitInfoScreenContent(
+        visit = demoUIStateSelected.selectedVisit!!,
         onEditVisit = {},
         onRemoveOrder = {}
     )

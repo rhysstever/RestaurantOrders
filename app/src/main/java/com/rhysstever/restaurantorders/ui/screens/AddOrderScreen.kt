@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,37 +19,43 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rhysstever.restaurantorders.AddOrder
+import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Order
-import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
-import com.rhysstever.restaurantorders.ui.demoUIState
-import com.rhysstever.restaurantorders.ui.demoUIStateSelected
+import com.rhysstever.restaurantorders.ui.navigation.AddOrder
+import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun AddOrderScreen(
-    state: RestaurantUIState,
-    onBack: () -> Unit,
-    onNewOrderInput: (String) -> Unit,
-    onKeyboardDone: (String) -> Unit,
-    onAddNewOrder: (Order) -> Unit,
+    navController: NavController,
+    restaurantViewModel: RestaurantViewModel
 ) {
+    val uiState by restaurantViewModel.uiState.collectAsState()
+
     ScreenScaffold(
         currentScreen = AddOrder,
-        onBack = onBack,
+        onBack = { navController.navigate(VisitInfo.route) },
         onAdd = null,
     ) { innerPadding ->
-        state.selectedRestaurant?.let { _ ->
-            state.selectedVisit?.let { _ ->
+        uiState.selectedRestaurant?.let { _ ->
+            uiState.selectedVisit?.let { _ ->
                 AddOrderScreenContent(
-                    isOrderNameInputInvalid = state.isNewOrderInputInvalid,
-                    onNewOrderInput = onNewOrderInput,
-                    onKeyboardDone = onKeyboardDone,
-                    onAddNewOrder = onAddNewOrder,
+                    isOrderNameInputInvalid = uiState.isNewOrderInputInvalid,
+                    onNewOrderInput = { newOrderName ->
+                        restaurantViewModel.OrderContent().checkNewOrderInput(newOrderName)
+                    },
+                    onKeyboardDone = { newOrderName ->
+                        restaurantViewModel.OrderContent().checkNewOrderInput(newOrderName)
+                    },
+                    onAddNewOrder = { order ->
+                        restaurantViewModel.OrderContent().addNewOrder(order)
+                        navController.navigate(VisitInfo.route)
+                    },
                     modifier = Modifier.padding(innerPadding)
                 )
             } ?: NoSelectedVisitMessage(modifier = Modifier.padding(innerPadding))
@@ -57,7 +63,6 @@ fun AddOrderScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddOrderScreenContent(
     isOrderNameInputInvalid: Boolean?,
@@ -172,22 +177,9 @@ private fun NoSelectedVisitMessage(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun AddOrderScreenPreview() {
-    AddOrderScreen(
-        state = demoUIStateSelected,
-        onBack = { },
-        onNewOrderInput = { },
-        onKeyboardDone = { },
-        onAddNewOrder = { _ -> },
-    )
-}
-
-@Preview
-@Composable
 fun AddOrderScreenNoSelectionPreview() {
-    AddOrderScreen(
-        state = demoUIState,
-        onBack = { },
+    AddOrderScreenContent(
+        isOrderNameInputInvalid = false,
         onNewOrderInput = { },
         onKeyboardDone = { },
         onAddNewOrder = { _ -> },

@@ -1,4 +1,4 @@
-package com.rhysstever.restaurantorders
+package com.rhysstever.restaurantorders.ui.navigation
 
 sealed interface RestaurantDestination {
     val route: String

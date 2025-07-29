@@ -22,6 +22,8 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,83 +34,122 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.Restaurant
-import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.EditableText
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.displayDate
-import com.rhysstever.restaurantorders.ui.demoUIState
 import com.rhysstever.restaurantorders.ui.demoUIStateSelected
+import com.rhysstever.restaurantorders.ui.navigation.AddVisit
+import com.rhysstever.restaurantorders.ui.navigation.Home
+import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
+import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun RestaurantInfoScreen(
-    state: RestaurantUIState,
-    onBack: () -> Unit,
-    onAdd: () -> Unit,
-    onRestaurantRename: (String) -> Unit,
-    onRestaurantNameValueChange: (String) -> Unit,
-    onFavoriteRestaurantClick: (Restaurant) -> Unit,
-    onKeyboardDone: (String) -> Unit,
-    onVisitSelected: (Visit) -> Unit,
-    onRemoveVisit: (Visit) -> Unit
+    navController: NavController,
+    restaurantViewModel: RestaurantViewModel
 ) {
+    val uiState by restaurantViewModel.uiState.collectAsState()
+
     ScreenScaffold(
         currentScreen = RestaurantInfo,
-        onBack = onBack,
-        onAdd = state.selectedRestaurant?.let { onAdd }
+        onBack = {
+            restaurantViewModel.RestaurantContent().selectRestaurant(null)
+            navController.navigate(Home.route)
+        },
+        onAdd = uiState.selectedRestaurant?.let {
+            { navController.navigate(AddVisit.route) }
+        }
     ) { innerPadding ->
-        state.selectedRestaurant?.let { currentSelectedRestaurant ->
-            val isEditingRestaurantName = remember { mutableStateOf(false) }
-            val (restaurantName, onRestaurantNameChange) = remember { mutableStateOf(currentSelectedRestaurant.name) }
-
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Screen title that includes the restaurant's name, edit icon, and favorite icon
-                RestaurantInfoScreenTitle(
-                    isEditing = isEditingRestaurantName.value,
-                    onToggleEditingRestaurantName = {
-                        // If the restaurant's name is being edited, rename the restaurant
-                        if (isEditingRestaurantName.value) {
-                            onRestaurantNameChange(restaurantName)
-                            onRestaurantRename(restaurantName)
-                        }
-                        // Toggle the editing state
-                        isEditingRestaurantName.value = !isEditingRestaurantName.value
-                    },
-                    restaurant = currentSelectedRestaurant,
-                    restaurantInput = restaurantName,
-                    onRestaurantNameChange = { newRestaurantName ->
-                        onRestaurantNameChange(newRestaurantName)
-                        onRestaurantNameValueChange(newRestaurantName)
-                    },
-                    isInputInvalid = state.isRestaurantRenameInputInvalid,
-                    isRestaurantFavorite = currentSelectedRestaurant.isFavorite,
-                    onFavoriteRestaurantClick = onFavoriteRestaurantClick,
-                    onKeyboardDone = { onKeyboardDone(restaurantName) }
-                )
-
-                if(currentSelectedRestaurant.visits.isNotEmpty()) {
-                    VisitsList(
-                        visits = currentSelectedRestaurant.visits.reversed(),
-                        onVisitSelected = onVisitSelected,
-                        onRemoveVisit = onRemoveVisit
-                    )
-                } else {
-                    NoVisitsList()
-                }
-            }
-        } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
+        RestaurantInfoScreenContent(
+            selectedRestaurant = uiState.selectedRestaurant,
+            onRenameRestaurant = { restaurantName ->
+                restaurantViewModel.RestaurantContent().renameRestaurant(restaurantName)
+            },
+            onCheckRestaurantRenameInput = { newRestaurantName ->
+                restaurantViewModel.RestaurantContent().checkRestaurantRenameInput(newRestaurantName)
+            },
+            isRestaurantRenameInputInvalid = uiState.isRestaurantRenameInputInvalid,
+            onVisitSelected = { selectedVisit ->
+                restaurantViewModel.VisitContent().selectVisit(selectedVisit)
+                navController.navigate(VisitInfo.route)
+            },
+            onRemoveVisit = { visitToRemove ->
+                restaurantViewModel.VisitContent().removeVisit(visitToRemove)
+            },
+            onToggleRestaurantIsFavorite = { restaurant ->
+                restaurantViewModel.RestaurantContent().toggleRestaurantIsFavorite(restaurant)
+            },
+            onCheckNewRestaurantInput = { restaurantName ->
+                restaurantViewModel.RestaurantContent().checkNewRestaurantInput(restaurantName)
+            },
+            modifier = Modifier.padding(innerPadding)
+        )
     }
+}
+
+@Composable
+fun RestaurantInfoScreenContent(
+    selectedRestaurant: Restaurant?,
+    onRenameRestaurant: (String) -> Unit,
+    onCheckRestaurantRenameInput: (String) -> Unit,
+    isRestaurantRenameInputInvalid: Boolean,
+    onToggleRestaurantIsFavorite: (Restaurant) -> Unit,
+    onCheckNewRestaurantInput: (String) -> Unit,
+    onVisitSelected: (Visit) -> Unit,
+    onRemoveVisit: (Visit) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    selectedRestaurant?.let {
+        val isEditingRestaurantName = remember { mutableStateOf(false) }
+        val (restaurantName, onRestaurantNameChange) = remember { mutableStateOf(selectedRestaurant.name) }
+
+        Column(
+            modifier = modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Screen title that includes the restaurant's name, edit icon, and favorite icon
+            RestaurantInfoScreenTitle(
+                isEditing = isEditingRestaurantName.value,
+                onToggleEditingRestaurantName = {
+                    // If the restaurant's name is being edited, rename the restaurant
+                    if (isEditingRestaurantName.value) {
+                        onRestaurantNameChange(restaurantName)
+                        onRenameRestaurant(restaurantName)
+                    }
+                    // Toggle the editing state
+                    isEditingRestaurantName.value = !isEditingRestaurantName.value
+                },
+                restaurant = selectedRestaurant,
+                restaurantInput = restaurantName,
+                onRestaurantNameChange = { newRestaurantName ->
+                    onRestaurantNameChange(newRestaurantName)
+                    onCheckRestaurantRenameInput(newRestaurantName)
+                },
+                isInputInvalid = isRestaurantRenameInputInvalid,
+                isRestaurantFavorite = selectedRestaurant.isFavorite,
+                onFavoriteRestaurantClick = onToggleRestaurantIsFavorite,
+                onKeyboardDone = { onCheckNewRestaurantInput(restaurantName) }
+            )
+
+            if(selectedRestaurant.visits.isNotEmpty()) {
+                VisitsList(
+                    visits = selectedRestaurant.visits.reversed(),
+                    onVisitSelected = onVisitSelected,
+                    onRemoveVisit = onRemoveVisit,
+                )
+            } else {
+                NoVisitsList()
+            }
+        }
+    } ?: NoRestaurantSelectedInfo(modifier = modifier)
 }
 
 @Composable
@@ -325,14 +366,13 @@ fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun RestaurantInfoScreenPreview() {
-    RestaurantInfoScreen(
-        state = demoUIStateSelected,
-        onBack = {},
-        onAdd = {},
-        onRestaurantRename = {},
-        onRestaurantNameValueChange = {},
-        onFavoriteRestaurantClick = {},
-        onKeyboardDone = {},
+    RestaurantInfoScreenContent(
+        selectedRestaurant = demoUIStateSelected.selectedRestaurant,
+        onRenameRestaurant = {},
+        onCheckRestaurantRenameInput = {},
+        isRestaurantRenameInputInvalid = false,
+        onToggleRestaurantIsFavorite = {},
+        onCheckNewRestaurantInput = {},
         onVisitSelected = {},
         onRemoveVisit = {},
     )
@@ -341,14 +381,13 @@ fun RestaurantInfoScreenPreview() {
 @Preview
 @Composable
 fun RestaurantInfoScreenNoSelectionPreview() {
-    RestaurantInfoScreen(
-        state = demoUIState,
-        onBack = {},
-        onAdd = {},
-        onRestaurantRename = {},
-        onRestaurantNameValueChange = {},
-        onFavoriteRestaurantClick = {},
-        onKeyboardDone = {},
+    RestaurantInfoScreenContent(
+        selectedRestaurant = null,
+        onRenameRestaurant = {},
+        onCheckRestaurantRenameInput = {},
+        isRestaurantRenameInputInvalid = false,
+        onToggleRestaurantIsFavorite = {},
+        onCheckNewRestaurantInput = {},
         onVisitSelected = {},
         onRemoveVisit = {},
     )

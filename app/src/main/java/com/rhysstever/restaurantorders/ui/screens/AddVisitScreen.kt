@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +19,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rhysstever.restaurantorders.AddVisit
+import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
-import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.CustomDatePicker
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
@@ -29,30 +31,41 @@ import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
 import com.rhysstever.restaurantorders.ui.components.convertDateToMillis
 import com.rhysstever.restaurantorders.ui.components.convertMillisToDate
+import com.rhysstever.restaurantorders.ui.navigation.AddVisit
+import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
+import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
 import java.util.Calendar
 
 @Composable
 fun AddVisitScreen(
-    state: RestaurantUIState,
-    onBack: () -> Unit,
-    onNewVisitInput: (String) -> Unit,
-    onKeyboardDone: (String) -> Unit,
-    onEditVisit: (Visit) -> Unit,
-    onAddNewVisit: (Visit) -> Unit
+    navController: NavController,
+    restaurantViewModel: RestaurantViewModel
 ) {
+    val uiState by restaurantViewModel.uiState.collectAsState()
+
     ScreenScaffold(
         currentScreen = AddVisit,
-        onBack = onBack,
+        onBack = { navController.navigate(RestaurantInfo.route) },
         onAdd = null,
     ) { innerPadding ->
-        state.selectedRestaurant?.let { _ ->
+        uiState.selectedRestaurant?.let { _ ->
             AddVisitScreenContent(
-                visit = state.selectedVisit,
-                isVisitNameInputInvalid = state.isNewVisitInputInvalid,
-                onNewVisitInput = onNewVisitInput,
-                onKeyboardDone = onKeyboardDone,
-                onEditVisit = onEditVisit,
-                onAddNewVisit = onAddNewVisit,
+                visit = uiState.selectedVisit,
+                isVisitNameInputInvalid = uiState.isNewVisitInputInvalid,
+                onNewVisitInput = { newVisitName ->
+                    restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
+                },
+                onKeyboardDone = { newVisitName ->
+                    restaurantViewModel.VisitContent().checkNewVisitInput(newVisitName)
+                },
+                onEditVisit = { updatedVisit ->
+                    restaurantViewModel.VisitContent().editSelectedVisit(updatedVisit = updatedVisit)
+                    navController.navigate(VisitInfo.route)
+                },
+                onAddNewVisit = { visit ->
+                    restaurantViewModel.VisitContent().addVisit(visit)
+                    navController.navigate(RestaurantInfo.route)
+                },
                 modifier = Modifier.padding(innerPadding)
             )
         } ?: NoSelectedRestaurantMessage(modifier = Modifier.padding(innerPadding))
@@ -154,4 +167,17 @@ private fun AddVisitScreenContent(
             } ?: stringResource(R.string.add_visit))
         }
     }
+}
+
+@Preview
+@Composable
+private fun AddVisitScreenPreview() {
+    AddVisitScreenContent(
+        visit = null,
+        isVisitNameInputInvalid = false,
+        onNewVisitInput = {},
+        onKeyboardDone = {},
+        onEditVisit = {},
+        onAddNewVisit = {}
+    )
 }

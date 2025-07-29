@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,34 +25,40 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.rhysstever.restaurantorders.Home
+import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Restaurant
-import com.rhysstever.restaurantorders.ui.RestaurantUIState
+import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.demoUIState
+import com.rhysstever.restaurantorders.ui.navigation.AddRestaurant
+import com.rhysstever.restaurantorders.ui.navigation.Home
+import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
 fun HomeScreen(
-    state: RestaurantUIState,
-    onAdd: () -> Unit,
-    onShowFavorites: () -> Unit,
-    onRestaurantClicked: (Restaurant) -> Unit,
+    navController: NavController,
+    restaurantViewModel: RestaurantViewModel,
 ) {
+    val uiState by restaurantViewModel.uiState.collectAsState()
+
     ScreenScaffold(
         currentScreen = Home,
         onBack = null,
-        onAdd = onAdd,
+        onAdd = { navController.navigate(AddRestaurant.route) },
         showFavorites = Pair(
-            state.onlyShowFavorites,
-            onShowFavorites
+            uiState.onlyShowFavorites,
+            { restaurantViewModel.toggleShowingFavorites() }
         )
     ) { innerPadding ->
         HomeScreenContent(
-            restaurantsList = state.restaurants,
-            showFavorites = state.onlyShowFavorites,
-            onRestaurantClicked = onRestaurantClicked,
+            restaurantsList = uiState.restaurants,
+            showFavorites = uiState.onlyShowFavorites,
+            onRestaurantClicked = { restaurant ->
+                restaurantViewModel.RestaurantContent().selectRestaurant(restaurant)
+                navController.navigate(RestaurantInfo.route)
+            },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -165,10 +173,9 @@ fun NoRestaurantList(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun RestaurantHomeScreenWithListPreview() {
-    HomeScreen(
-        state = demoUIState,
-        onAdd = {},
-        onShowFavorites = {},
+    HomeScreenContent(
+        restaurantsList = demoUIState.restaurants,
+        showFavorites = false,
         onRestaurantClicked = {}
     )
 }
@@ -176,10 +183,9 @@ private fun RestaurantHomeScreenWithListPreview() {
 @Preview
 @Composable
 private fun RestaurantHomeScreenNoListPreview() {
-    HomeScreen(
-        state = demoUIState.copy(restaurants = emptyList()),
-        onAdd = {},
-        onShowFavorites = {},
+    HomeScreenContent(
+        restaurantsList = demoUIState.copy(restaurants = emptyList()).restaurants,
+        showFavorites = false,
         onRestaurantClicked = {}
     )
 }
