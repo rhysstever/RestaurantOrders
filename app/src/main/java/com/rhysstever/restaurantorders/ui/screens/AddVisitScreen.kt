@@ -46,7 +46,6 @@ fun AddVisitScreen(
     ScreenScaffold(
         currentScreen = AddVisit,
         onBack = { navController.navigate(RestaurantInfo.route) },
-        onAdd = null,
     ) { innerPadding ->
         uiState.selectedRestaurant?.let { _ ->
             AddVisitScreenContent(

@@ -37,6 +37,7 @@ import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.components.TopAppBarAction
 import com.rhysstever.restaurantorders.ui.components.displayDate
 import com.rhysstever.restaurantorders.ui.demoUIStateSelected
 import com.rhysstever.restaurantorders.ui.navigation.AddOrder
@@ -55,7 +56,15 @@ fun VisitInfoScreen(
     ScreenScaffold(
         currentScreen = VisitInfo,
         onBack = { navController.navigate(RestaurantInfo.route) },
-        onAdd = uiState.selectedRestaurant?.let { { navController.navigate(AddOrder.route) } },
+        actions = uiState.selectedRestaurant?.let {
+            listOf(
+                TopAppBarAction(
+                    icon = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.top_app_bar_add_order_button_cd),
+                    onClick = { navController.navigate(AddOrder.route) }
+                )
+            )
+        },
     ) { innerPadding ->
         uiState.selectedVisit?.let { currentlySelectedVisit ->
             VisitInfoScreenContent(
@@ -199,9 +208,7 @@ private fun OrderListItem(
         ) {
             Text(
                 text = order.name,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 12.dp),
+                modifier = Modifier.weight(1f),
                 style = Typography.titleLarge
             )
             AccessibleIcon(

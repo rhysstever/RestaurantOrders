@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">RestaurantOrders</string>
 
+    <!--Top App Bar-->
+    <string name="top_app_bar_back_button_cd">Back</string>
+    <string name="top_app_bar_show_favorites_button_cd">Show Favorites</string>
+    <string name="top_app_bar_hide_favorites_button_cd">Hide Favorites</string>
+    <string name="top_app_bar_favorite_button_cd">Favorite</string>
+    <string name="top_app_bar_unfavorite_button_cd">Unfavorite</string>
+    <string name="top_app_bar_add_restaurant_button_cd">Add Restaurant</string>
+    <string name="top_app_bar_add_visit_button_cd">Add Visit</string>
+    <string name="top_app_bar_add_order_button_cd">Add Order</string>
+    <string name="top_app_bar_edit_button_cd">Edit</string>
+
     <!--Home Screen-->
     <string name="get_started">Add a restaurant to get started</string>
     <string name="is_favorite">Favorite</string>

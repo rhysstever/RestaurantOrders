@@ -6,24 +6,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.navigation.RestaurantDestination
 
 @Composable
 fun ScreenScaffold(
     currentScreen: RestaurantDestination,
     onBack: (() -> Unit)?,
-    onAdd: (() -> Unit)?,
-    showFavorites: Pair<Boolean, () -> Unit>? = null,
+    actions: List<TopAppBarAction>? = null,
     contentToShow: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -32,8 +31,7 @@ fun ScreenScaffold(
             RestaurantTopAppBar(
                 currentScreen = currentScreen,
                 onBack = onBack,
-                onAdd = onAdd,
-                onlyShowFavorites = showFavorites
+                actions = actions,
             )
         }
     ) { innerPadding ->
@@ -46,8 +44,7 @@ fun ScreenScaffold(
 fun RestaurantTopAppBar(
     currentScreen: RestaurantDestination,
     onBack: (() -> Unit)? = null,
-    onAdd: (() -> Unit)? = null,
-    onlyShowFavorites: Pair<Boolean, () -> Unit>? = null,
+    actions: List<TopAppBarAction>? = null,
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -57,34 +54,29 @@ fun RestaurantTopAppBar(
             onBack?.let {
                 AccessibleIcon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(id = R.string.top_app_bar_back_button_cd),
                     onClick = onBack
                 )
             }
         },
         actions = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                onlyShowFavorites?.let {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                actions?.forEach { action ->
                     AccessibleIcon(
-                        imageVector = if(it.first) {
-                            Icons.Default.Favorite
-                        } else {
-                            Icons.Default.FavoriteBorder
-                        },
-                        contentDescription = "Show Favorites",
-                        onClick = it.second
-                    )
-                }
-                onAdd?.let {
-                    AccessibleIcon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Restaurant",
-                        onClick = onAdd
+                        imageVector = action.icon,
+                        contentDescription = action.contentDescription,
+                        onClick = action.onClick,
+                        enabled = action.enabled,
                     )
                 }
             }
         }
     )
 }
+
+data class TopAppBarAction(
+    val icon: ImageVector,
+    val contentDescription: String,
+    val onClick: () -> Unit,
+    val enabled: Boolean = true
+)

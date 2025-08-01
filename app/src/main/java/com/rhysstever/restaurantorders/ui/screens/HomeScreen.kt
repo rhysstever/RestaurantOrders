@@ -30,6 +30,7 @@ import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
+import com.rhysstever.restaurantorders.ui.components.TopAppBarAction
 import com.rhysstever.restaurantorders.ui.demoUIState
 import com.rhysstever.restaurantorders.ui.navigation.AddRestaurant
 import com.rhysstever.restaurantorders.ui.navigation.Home
@@ -43,13 +44,30 @@ fun HomeScreen(
 ) {
     val uiState by restaurantViewModel.uiState.collectAsState()
 
+    val toggleFavoriteAction = if (uiState.onlyShowFavorites) {
+        TopAppBarAction(
+            icon = Icons.Default.Favorite,
+            contentDescription = stringResource(R.string.top_app_bar_hide_favorites_button_cd),
+            onClick = { restaurantViewModel.toggleShowingFavorites() }
+        )
+    } else {
+        TopAppBarAction(
+            icon = Icons.Default.FavoriteBorder,
+            contentDescription = stringResource(R.string.top_app_bar_show_favorites_button_cd),
+            onClick = { restaurantViewModel.toggleShowingFavorites() }
+        )
+    }
+
     ScreenScaffold(
         currentScreen = Home,
         onBack = null,
-        onAdd = { navController.navigate(AddRestaurant.route) },
-        showFavorites = Pair(
-            uiState.onlyShowFavorites,
-            { restaurantViewModel.toggleShowingFavorites() }
+        actions = listOf(
+            toggleFavoriteAction,
+            TopAppBarAction(
+                icon = Icons.Default.Add,
+                contentDescription = stringResource(R.string.top_app_bar_add_restaurant_button_cd),
+                onClick = { navController.navigate(AddRestaurant.route) },
+            )
         )
     ) { innerPadding ->
         HomeScreenContent(

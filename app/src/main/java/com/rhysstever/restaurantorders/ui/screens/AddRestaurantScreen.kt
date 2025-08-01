@@ -33,7 +33,6 @@ fun AddRestaurantScreen(
     ScreenScaffold(
         currentScreen = AddRestaurant,
         onBack = { navController.navigate(Home.route) },
-        onAdd = null,
     ) { innerPadding ->
         AddRestaurantScreenContent(
             isInputInvalid = uiState.isNewRestaurantInputInvalid,

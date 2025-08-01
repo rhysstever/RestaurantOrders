@@ -40,7 +40,6 @@ fun AddOrderScreen(
     ScreenScaffold(
         currentScreen = AddOrder,
         onBack = { navController.navigate(VisitInfo.route) },
-        onAdd = null,
     ) { innerPadding ->
         uiState.selectedRestaurant?.let { _ ->
             uiState.selectedVisit?.let { _ ->
