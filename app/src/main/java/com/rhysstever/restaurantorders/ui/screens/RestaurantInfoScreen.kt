@@ -115,29 +115,75 @@ fun RestaurantInfoScreenContent(
             modifier = modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Screen title that includes the restaurant's name, edit icon, and favorite icon
-            RestaurantInfoScreenTitle(
-                isEditing = isEditingRestaurantName.value,
-                onToggleEditingRestaurantName = {
-                    // If the restaurant's name is being edited, rename the restaurant
-                    if (isEditingRestaurantName.value) {
-                        onRestaurantNameChange(restaurantName)
-                        onRenameRestaurant(restaurantName)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                EditableText(
+                    isBeingEdited = isEditingRestaurantName.value,
+                    text = restaurantName,
+                    onTextChange = { newRestaurantName ->
+                        onRestaurantNameChange(newRestaurantName)
+                        onCheckRestaurantRenameInput(newRestaurantName)
+                    },
+                    isInputInvalid = isRestaurantRenameInputInvalid,
+                    label = if (isRestaurantRenameInputInvalid) {
+                        if (restaurantName.isBlank()) {
+                            stringResource(R.string.invalid_restaurant_name)
+                        } else {
+                            stringResource(R.string.restaurant_name_exists)
+                        }
+                    } else {
+                        stringResource(R.string.enter_new_restaurant_name)
+                    },
+                    onKeyboardDone = { onCheckNewRestaurantInput(restaurantName) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 12.dp)
+                )
+                Row(modifier = Modifier.align(Alignment.Top)) {
+                    val onToggleEditingRestaurantName = {
+                        // If the restaurant's name is being edited, rename the restaurant
+                        if (isEditingRestaurantName.value) {
+                            onRestaurantNameChange(restaurantName)
+                            onRenameRestaurant(restaurantName)
+                        }
+                        // Toggle the editing state
+                        isEditingRestaurantName.value = !isEditingRestaurantName.value
                     }
-                    // Toggle the editing state
-                    isEditingRestaurantName.value = !isEditingRestaurantName.value
-                },
-                restaurant = selectedRestaurant,
-                restaurantInput = restaurantName,
-                onRestaurantNameChange = { newRestaurantName ->
-                    onRestaurantNameChange(newRestaurantName)
-                    onCheckRestaurantRenameInput(newRestaurantName)
-                },
-                isInputInvalid = isRestaurantRenameInputInvalid,
-                isRestaurantFavorite = selectedRestaurant.isFavorite,
-                onFavoriteRestaurantClick = onToggleRestaurantIsFavorite,
-                onKeyboardDone = { onCheckNewRestaurantInput(restaurantName) }
-            )
+
+                    if(isEditingRestaurantName.value) {
+                        AccessibleIcon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = stringResource(R.string.submit_rename),
+                            enabled = !isRestaurantRenameInputInvalid,
+                            onClick = onToggleEditingRestaurantName
+                        )
+                    } else {
+                        AccessibleIcon(
+                            imageVector = Icons.Default.Create,
+                            contentDescription = stringResource(R.string.rename_restaurant),
+                            onClick = onToggleEditingRestaurantName
+                        )
+                    }
+                    AccessibleIcon(
+                        imageVector = if(selectedRestaurant.isFavorite) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.FavoriteBorder
+                        },
+                        contentDescription = if(selectedRestaurant.isFavorite) {
+                            stringResource(R.string.is_favorite)
+                        } else {
+                            stringResource(R.string.is_not_favorite)
+                        },
+                        onClick = {
+                            onToggleRestaurantIsFavorite(selectedRestaurant)
+                        }
+                    )
+                }
+            }
 
             if(selectedRestaurant.visits.isNotEmpty()) {
                 VisitsList(
@@ -150,73 +196,6 @@ fun RestaurantInfoScreenContent(
             }
         }
     } ?: NoRestaurantSelectedInfo(modifier = modifier)
-}
-
-@Composable
-fun RestaurantInfoScreenTitle(
-    isEditing: Boolean,
-    onToggleEditingRestaurantName: () -> Unit,
-    restaurant: Restaurant,
-    restaurantInput: String,
-    onRestaurantNameChange: (String) -> Unit,
-    isInputInvalid: Boolean,
-    isRestaurantFavorite: Boolean,
-    onFavoriteRestaurantClick: (Restaurant) -> Unit,
-    onKeyboardDone: () -> Unit = {},
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        EditableText(
-            isBeingEdited = isEditing,
-            text = restaurantInput,
-            onTextChange = onRestaurantNameChange,
-            isInputInvalid = isInputInvalid,
-            label = if (isInputInvalid) {
-                if (restaurantInput.isBlank()) {
-                    stringResource(R.string.invalid_restaurant_name)
-                } else {
-                    stringResource(R.string.restaurant_name_exists)
-                }
-            } else {
-                stringResource(R.string.enter_new_restaurant_name)
-            },
-            onKeyboardDone = onKeyboardDone
-        )
-        Row {
-            if(isEditing) {
-                AccessibleIcon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = stringResource(R.string.submit_rename),
-                    enabled = !isInputInvalid,
-                    onClick = onToggleEditingRestaurantName
-                )
-            } else {
-                AccessibleIcon(
-                    imageVector = Icons.Default.Create,
-                    contentDescription = stringResource(R.string.rename_restaurant),
-                    onClick = onToggleEditingRestaurantName
-                )
-            }
-            AccessibleIcon(
-                imageVector = if(restaurant.isFavorite) {
-                    Icons.Default.Favorite
-                } else {
-                    Icons.Default.FavoriteBorder
-                },
-                contentDescription = if(isRestaurantFavorite) {
-                    stringResource(R.string.is_favorite)
-                } else {
-                    stringResource(R.string.is_not_favorite)
-                },
-                onClick = {
-                    onFavoriteRestaurantClick(restaurant)
-                }
-            )
-        }
-    }
 }
 
 @Composable
@@ -279,10 +258,13 @@ private fun VisitListItem(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
                 text = visit.name,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 12.dp),
                 style = Typography.titleLarge
             )
             Row {

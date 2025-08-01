@@ -42,7 +42,7 @@ val demoUIState = RestaurantUIState(
             visits = emptyList()
         ),
         Restaurant(
-            name = "Mexican Bar",
+            name = "Mexican Bar that has a really long name for some reason and I don't know why it is so long",
             isFavorite = true,
             visits = listOf(
                 Visit(
@@ -63,14 +63,14 @@ val demoUIState = RestaurantUIState(
                     notes = "Great food, service, and atmosphere!"
                 ),
                 Visit(
-                    name = "Visit 2",
+                    name = "Visit 2 that has a really really long name and I mean a really long name",
                     orders = listOf(
                         Order(
                             name = "Chicken Enchiladas",
                             rating = 3,
                             notes = "A little dry"),
                         Order(
-                            name = "Shrimp Tacos",
+                            name = "Shrimp Tacos that were quite delicious, I really liked them, but why is this included in its name?",
                             rating = 4,
                             notes = "Good but not as good as the Birria Tacos"
                         )
@@ -99,5 +99,5 @@ val demoUIState = RestaurantUIState(
 
 val demoUIStateSelected = demoUIState.copy(
     selectedRestaurant = demoUIState.restaurants[1],
-    selectedVisit = demoUIState.restaurants[1].visits[0]
+    selectedVisit = demoUIState.restaurants[1].visits[1]
 )

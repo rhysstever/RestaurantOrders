@@ -86,10 +86,11 @@ private fun VisitInfoScreenContent(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
                 text = visit.name,
+                modifier = Modifier.weight(1f),
                 style = Typography.headlineLarge,
             )
             AccessibleIcon(
@@ -194,10 +195,13 @@ private fun OrderListItem(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
                 text = order.name,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 12.dp),
                 style = Typography.titleLarge
             )
             AccessibleIcon(
