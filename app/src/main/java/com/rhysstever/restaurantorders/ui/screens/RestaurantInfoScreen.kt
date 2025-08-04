@@ -184,7 +184,9 @@ fun RestaurantInfoScreenContent(
 @Composable
 private fun NoVisitsList() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -270,15 +272,19 @@ private fun VisitListItem(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            visit.rating?.let {
+            visit.rating?.let { rating ->
                 Row(
                     modifier = Modifier.height(24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    repeat(it) {
+                    repeat(rating) { index ->
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "$it ${pluralStringResource(R.plurals.stars, it, it)}",
+                            contentDescription = if(index == rating - 1) {
+                                pluralStringResource(R.plurals.stars, index + 1, index + 1)
+                            } else {
+                                null
+                            },
                             modifier = Modifier.requiredSize(16.dp)
                         )
                     }
@@ -316,7 +322,8 @@ fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -334,6 +341,8 @@ fun restaurantInfoScreenActionsList(
     onAdd: () -> Unit,
     onToggleFavorite: (Restaurant) -> Unit,
 ): List<TopAppBarAction> {
+    val list = mutableListOf<TopAppBarAction>()
+
     val favoriteAction = uiState.selectedRestaurant?.let {
         if(it.isFavorite) {
             TopAppBarAction(
@@ -349,15 +358,15 @@ fun restaurantInfoScreenActionsList(
             )
         }
     }
+    favoriteAction?.let { list.add(it) }
 
-    val list = mutableListOf(
+    list.add(
         TopAppBarAction(
             icon = Icons.Default.Add,
             contentDescription = stringResource(R.string.top_app_bar_add_visit_button_cd),
             onClick = onAdd
         )
     )
-    favoriteAction?.let { list.add(it) }
 
     return list.toList()
 }

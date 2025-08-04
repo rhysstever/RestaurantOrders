@@ -109,16 +109,23 @@ private fun VisitInfoScreenContent(
             )
         }
 
-        visit.rating?.let {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        visit.rating?.let { rating ->
+            Row(
+                modifier = Modifier.semantics(true) {},
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "${stringResource(R.string.overall_rating)}: ",
                     style = Typography.bodyLarge
                 )
-                repeat(it) {
+                repeat(rating) { index ->
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = "$it ${pluralStringResource(R.plurals.stars, it, it)}",
+                        contentDescription = if(index == rating - 1) {
+                            pluralStringResource(R.plurals.stars, index + 1, index + 1)
+                        } else {
+                            null
+                        },
                         modifier = Modifier.requiredSize(16.dp)
                     )
                 }
@@ -149,7 +156,9 @@ private fun VisitInfoScreenContent(
 @Composable
 private fun NoOrdersList() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -223,15 +232,19 @@ private fun OrderListItem(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            order.rating?.let {
+            order.rating?.let { rating ->
                 Row(
                     modifier = Modifier.height(24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    repeat(it) {
+                    repeat(rating) { index ->
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "$it ${pluralStringResource(R.plurals.stars, it, it)}",
+                            contentDescription = if(index == rating - 1) {
+                                pluralStringResource(R.plurals.stars, index + 1, index + 1)
+                            } else {
+                                null
+                            },
                             modifier = Modifier.requiredSize(16.dp)
                         )
                     }
