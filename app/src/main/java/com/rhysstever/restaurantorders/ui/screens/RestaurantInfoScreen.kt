@@ -10,16 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,6 +41,8 @@ import com.rhysstever.restaurantorders.ui.navigation.AddVisit
 import com.rhysstever.restaurantorders.ui.navigation.Home
 import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
+import com.rhysstever.restaurantorders.ui.theme.AppIcon
+import com.rhysstever.restaurantorders.ui.theme.AppIcons
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
@@ -154,14 +146,14 @@ fun RestaurantInfoScreenContent(
 
                 if(isEditingRestaurantName.value) {
                     AccessibleIcon(
-                        imageVector = Icons.Default.Check,
+                        icon = AppIcons.Check,
                         contentDescription = stringResource(R.string.submit_rename),
                         enabled = !isRestaurantRenameInputInvalid,
                         onClick = onToggleEditingRestaurantName
                     )
                 } else {
                     AccessibleIcon(
-                        imageVector = Icons.Default.Create,
+                        icon = AppIcons.EditOutline,
                         contentDescription = stringResource(R.string.rename_restaurant),
                         onClick = onToggleEditingRestaurantName
                     )
@@ -190,7 +182,7 @@ private fun NoVisitsList() {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        AppIcon(icon = AppIcons.Add)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.add_a_visit),
@@ -254,13 +246,13 @@ private fun VisitListItem(
             )
             Row {
                 AccessibleIcon(
-                    imageVector = Icons.Outlined.Info,
+                    icon = AppIcons.InfoOutline,
                     contentDescription = stringResource(R.string.visit_info),
                 ) {
                     onVisitSelected(visit)
                 }
                 AccessibleIcon(
-                    imageVector = Icons.Default.Close,
+                    icon = AppIcons.Close,
                     contentDescription = stringResource(R.string.delete_visit),
                 ) {
                     isDeleteVisitDialogShowing.value = true
@@ -275,11 +267,12 @@ private fun VisitListItem(
             visit.rating?.let { rating ->
                 Row(
                     modifier = Modifier.height(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     repeat(rating) { index ->
-                        Icon(
-                            imageVector = Icons.Default.Star,
+                        AppIcon(
+                            icon = AppIcons.StarFilled,
                             contentDescription = if(index == rating - 1) {
                                 pluralStringResource(R.plurals.stars, index + 1, index + 1)
                             } else {
@@ -346,13 +339,13 @@ fun restaurantInfoScreenActionsList(
     val favoriteAction = uiState.selectedRestaurant?.let {
         if(it.isFavorite) {
             TopAppBarAction(
-                icon = Icons.Default.Favorite,
+                icon = AppIcons.FavoriteFilled,
                 contentDescription = stringResource(R.string.top_app_bar_unfavorite_button_cd),
                 onClick = { onToggleFavorite(it) }
             )
         } else {
             TopAppBarAction(
-                icon = Icons.Default.FavoriteBorder,
+                icon = AppIcons.FavoriteOutline,
                 contentDescription = stringResource(R.string.top_app_bar_favorite_button_cd),
                 onClick = { onToggleFavorite(it) }
             )
@@ -362,7 +355,7 @@ fun restaurantInfoScreenActionsList(
 
     list.add(
         TopAppBarAction(
-            icon = Icons.Default.Add,
+            icon = AppIcons.Add,
             contentDescription = stringResource(R.string.top_app_bar_add_visit_button_cd),
             onClick = onAdd
         )

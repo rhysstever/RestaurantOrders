@@ -4,11 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +23,7 @@ import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.Visit
+import com.rhysstever.restaurantorders.ui.components.ButtonFill
 import com.rhysstever.restaurantorders.ui.components.CustomDatePicker
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
@@ -142,7 +141,10 @@ private fun AddVisitScreenContent(
         )
 
         // Submit button
-        Button(
+        ButtonFill(
+            text = visit?.let {
+                stringResource(R.string.update_visit)
+            } ?: stringResource(R.string.add_visit),
             onClick = {
                 // Create a new Visit object
                 val newVisit = Visit(
@@ -160,11 +162,7 @@ private fun AddVisitScreenContent(
                 } ?: onAddNewVisit(newVisit)
             },
             enabled = isVisitNameInputInvalid?.let { !it } ?: false,
-        ) {
-            Text(text = visit?.let {
-                stringResource(R.string.update_visit)
-            } ?: stringResource(R.string.add_visit))
-        }
+        )
     }
 }
 

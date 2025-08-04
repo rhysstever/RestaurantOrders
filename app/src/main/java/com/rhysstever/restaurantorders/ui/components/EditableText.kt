@@ -3,7 +3,6 @@ package com.rhysstever.restaurantorders.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -54,9 +53,10 @@ fun EditableTextPreview() {
     val isEditing = remember { mutableStateOf(false) }
 
     Column {
-        Button(
+        ButtonFill(
+            text = "Toggle Editing",
             onClick = { isEditing.value = !isEditing.value },
-        ) { Text("Toggle Editing") }
+        )
         EditableText(
             isBeingEdited = isEditing.value,
             text = value,

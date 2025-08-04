@@ -1,11 +1,11 @@
 package com.rhysstever.restaurantorders.ui.components
 
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
@@ -20,15 +20,17 @@ fun CustomAlertDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = onConfirm) {
-                Text(text = stringResource(R.string.confirm))
-            }
+            ButtonFill(
+                text = stringResource(R.string.confirm),
+                onClick = onConfirm
+            )
         },
         modifier = modifier,
         dismissButton = {
-            Button(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel))
-            }
+            ButtonFill(
+                text = stringResource(R.string.cancel),
+                onClick = onDismiss
+            )
         },
         title = {
             Text(
@@ -42,5 +44,16 @@ fun CustomAlertDialog(
                 style = Typography.bodyLarge
             )
         }
+    )
+}
+
+@Preview
+@Composable
+fun CustomAlertDialogPreview() {
+    CustomAlertDialog(
+        onDismiss = {},
+        onConfirm = {},
+        title = "Delete visit?",
+        body = "Are you sure you want to delete this visit? This action cannot be undone."
     )
 }

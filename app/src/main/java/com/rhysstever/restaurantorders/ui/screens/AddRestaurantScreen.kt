@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.components.ButtonFill
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
 import com.rhysstever.restaurantorders.ui.navigation.AddRestaurant
@@ -85,12 +84,11 @@ private fun AddRestaurantScreenContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
+        ButtonFill(
+            text = stringResource(R.string.add_restaurant),
             onClick = { onAddNewRestaurant(restaurantName) },
             enabled = isInputInvalid?.let { !it } ?: false,
-        ) {
-            Text(text = stringResource(R.string.add_restaurant))
-        }
+        )
     }
 }
 

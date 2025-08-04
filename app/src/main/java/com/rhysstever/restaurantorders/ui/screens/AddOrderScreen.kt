@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,6 +23,7 @@ import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.components.ButtonFill
 import com.rhysstever.restaurantorders.ui.components.RatingsRow
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.StyledTextField
@@ -122,7 +122,8 @@ private fun AddOrderScreenContent(
         )
 
         // Submit button
-        Button(
+        ButtonFill(
+            text = stringResource(R.string.add_order),
             onClick = {
                 // Create a new Order object
                 val newOrder = Order(
@@ -135,9 +136,7 @@ private fun AddOrderScreenContent(
                 onAddNewOrder(newOrder)
             },
             enabled = isOrderNameInputInvalid?.let { !it } ?: false,
-        ) {
-            Text(text = stringResource(R.string.add_order))
-        }
+        )
     }
 }
 

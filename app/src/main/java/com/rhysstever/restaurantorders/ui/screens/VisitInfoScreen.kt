@@ -10,12 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,6 +38,8 @@ import com.rhysstever.restaurantorders.ui.navigation.AddOrder
 import com.rhysstever.restaurantorders.ui.navigation.AddVisit
 import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
+import com.rhysstever.restaurantorders.ui.theme.AppIcon
+import com.rhysstever.restaurantorders.ui.theme.AppIcons
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
@@ -59,7 +55,7 @@ fun VisitInfoScreen(
         actions = uiState.selectedRestaurant?.let {
             listOf(
                 TopAppBarAction(
-                    icon = Icons.Default.Add,
+                    icon = AppIcons.Add,
                     contentDescription = stringResource(R.string.top_app_bar_add_order_button_cd),
                     onClick = { navController.navigate(AddOrder.route) }
                 )
@@ -103,7 +99,7 @@ private fun VisitInfoScreenContent(
                 style = Typography.headlineLarge,
             )
             AccessibleIcon(
-                imageVector = Icons.Default.Create,
+                icon = AppIcons.EditOutline,
                 contentDescription = stringResource(R.string.edit_visit),
                 onClick = onEditVisit
             )
@@ -112,6 +108,7 @@ private fun VisitInfoScreenContent(
         visit.rating?.let { rating ->
             Row(
                 modifier = Modifier.semantics(true) {},
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -119,8 +116,8 @@ private fun VisitInfoScreenContent(
                     style = Typography.bodyLarge
                 )
                 repeat(rating) { index ->
-                    Icon(
-                        imageVector = Icons.Default.Star,
+                    AppIcon(
+                        icon = AppIcons.StarFilled,
                         contentDescription = if(index == rating - 1) {
                             pluralStringResource(R.plurals.stars, index + 1, index + 1)
                         } else {
@@ -162,7 +159,7 @@ private fun NoOrdersList() {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        AppIcon(icon = AppIcons.Add)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.add_an_order),
@@ -221,33 +218,28 @@ private fun OrderListItem(
                 style = Typography.titleLarge
             )
             AccessibleIcon(
-                imageVector = Icons.Default.Close,
+                icon = AppIcons.Close,
                 contentDescription = stringResource(R.string.delete_order),
             ) {
                 isDeleteOrderDialogShowing.value = true
             }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            order.rating?.let { rating ->
-                Row(
-                    modifier = Modifier.height(24.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(rating) { index ->
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = if(index == rating - 1) {
-                                pluralStringResource(R.plurals.stars, index + 1, index + 1)
-                            } else {
-                                null
-                            },
-                            modifier = Modifier.requiredSize(16.dp)
-                        )
-                    }
+        order.rating?.let { rating ->
+            Row(
+                modifier = Modifier.height(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(rating) { index ->
+                    AppIcon(
+                        icon = AppIcons.StarFilled,
+                        contentDescription = if(index == rating - 1) {
+                            pluralStringResource(R.plurals.stars, index + 1, index + 1)
+                        } else {
+                            null
+                        },
+                        modifier = Modifier.requiredSize(16.dp)
+                    )
                 }
             }
         }

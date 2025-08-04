@@ -3,17 +3,10 @@ package com.rhysstever.restaurantorders.ui.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,12 +22,15 @@ import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
+import com.rhysstever.restaurantorders.ui.components.ButtonText
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.TopAppBarAction
 import com.rhysstever.restaurantorders.ui.demoUIState
 import com.rhysstever.restaurantorders.ui.navigation.AddRestaurant
 import com.rhysstever.restaurantorders.ui.navigation.Home
 import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
+import com.rhysstever.restaurantorders.ui.theme.AppIcon
+import com.rhysstever.restaurantorders.ui.theme.AppIcons
 import com.rhysstever.restaurantorders.ui.theme.Typography
 
 @Composable
@@ -46,13 +42,13 @@ fun HomeScreen(
 
     val toggleFavoriteAction = if (uiState.onlyShowFavorites) {
         TopAppBarAction(
-            icon = Icons.Default.Favorite,
+            icon = AppIcons.FavoriteFilled,
             contentDescription = stringResource(R.string.top_app_bar_hide_favorites_button_cd),
             onClick = { restaurantViewModel.toggleShowingFavorites() }
         )
     } else {
         TopAppBarAction(
-            icon = Icons.Default.FavoriteBorder,
+            icon = AppIcons.FavoriteOutline,
             contentDescription = stringResource(R.string.top_app_bar_show_favorites_button_cd),
             onClick = { restaurantViewModel.toggleShowingFavorites() }
         )
@@ -64,7 +60,7 @@ fun HomeScreen(
         actions = listOf(
             toggleFavoriteAction,
             TopAppBarAction(
-                icon = Icons.Default.Add,
+                icon = AppIcons.Add,
                 contentDescription = stringResource(R.string.top_app_bar_add_restaurant_button_cd),
                 onClick = { navController.navigate(AddRestaurant.route) },
             )
@@ -77,6 +73,7 @@ fun HomeScreen(
                 restaurantViewModel.RestaurantContent().selectRestaurant(restaurant)
                 navController.navigate(RestaurantInfo.route)
             },
+            onAddRestaurant = { navController.navigate(AddRestaurant.route) },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -87,10 +84,12 @@ fun HomeScreenContent(
     restaurantsList: List<Restaurant>,
     showFavorites: Boolean,
     onRestaurantClicked: (Restaurant) -> Unit,
+    onAddRestaurant: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if(restaurantsList.isEmpty()) {
         NoRestaurantList(
+            onAddRestaurant = onAddRestaurant,
             modifier = modifier
         )
     } else {
@@ -148,11 +147,11 @@ private fun RestaurantListItem(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = if(restaurant.isFavorite) {
-                Icons.Default.Favorite
+        AppIcon(
+            icon = if(restaurant.isFavorite) {
+                AppIcons.FavoriteFilled
             } else {
-                Icons.Default.FavoriteBorder
+                AppIcons.FavoriteOutline
             },
             contentDescription = if(restaurant.isFavorite) {
                 stringResource(R.string.is_favorite)
@@ -173,7 +172,10 @@ private fun RestaurantListItem(
 }
 
 @Composable
-fun NoRestaurantList(modifier: Modifier = Modifier) {
+fun NoRestaurantList(
+    onAddRestaurant: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -181,11 +183,11 @@ fun NoRestaurantList(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = null)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
+        ButtonText(
             text = stringResource(R.string.get_started),
-            style = Typography.bodyLarge
+            onClick = onAddRestaurant,
+            modifier = modifier,
+            leadingIcon = AppIcons.Add
         )
     }
 }
@@ -196,7 +198,8 @@ private fun RestaurantHomeScreenWithListPreview() {
     HomeScreenContent(
         restaurantsList = demoUIState.restaurants,
         showFavorites = false,
-        onRestaurantClicked = {}
+        onRestaurantClicked = {},
+        onAddRestaurant = {}
     )
 }
 
@@ -206,6 +209,7 @@ private fun RestaurantHomeScreenNoListPreview() {
     HomeScreenContent(
         restaurantsList = demoUIState.copy(restaurants = emptyList()).restaurants,
         showFavorites = false,
-        onRestaurantClicked = {}
+        onRestaurantClicked = {},
+        onAddRestaurant = {}
     )
 }

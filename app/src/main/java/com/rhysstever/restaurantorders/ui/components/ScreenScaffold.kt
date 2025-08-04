@@ -4,19 +4,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.navigation.RestaurantDestination
+import com.rhysstever.restaurantorders.ui.theme.AppIcons
 
 @Composable
 fun ScreenScaffold(
@@ -53,7 +51,7 @@ fun RestaurantTopAppBar(
         navigationIcon = {
             onBack?.let {
                 AccessibleIcon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    icon = AppIcons.ChevronLeft,
                     contentDescription = stringResource(id = R.string.top_app_bar_back_button_cd),
                     onClick = onBack
                 )
@@ -63,7 +61,7 @@ fun RestaurantTopAppBar(
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 actions?.forEach { action ->
                     AccessibleIcon(
-                        imageVector = action.icon,
+                        icon = action.icon,
                         contentDescription = action.contentDescription,
                         onClick = action.onClick,
                         enabled = action.enabled,
@@ -75,7 +73,7 @@ fun RestaurantTopAppBar(
 }
 
 data class TopAppBarAction(
-    val icon: ImageVector,
+    val icon: AppIcons,
     val contentDescription: String,
     val onClick: () -> Unit,
     val enabled: Boolean = true
