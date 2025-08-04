@@ -32,7 +32,8 @@ fun RatingsRow(
     onRatingChanged: (Int) -> Unit,
     ratingTitle: String,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    arrangement: Arrangement.Horizontal = Arrangement.Center
 ) {
     val clampedRating = rating?.coerceIn(1, 5) ?: 0
     val contentDescription = "$ratingTitle ${pluralStringResource(R.plurals.stars, clampedRating, clampedRating)}"
@@ -54,7 +55,7 @@ fun RatingsRow(
                     onRatingChanged(clampedRating + 1)
                 }
             },
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = arrangement,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

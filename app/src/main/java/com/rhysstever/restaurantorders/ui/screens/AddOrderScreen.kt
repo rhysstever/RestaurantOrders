@@ -108,7 +108,8 @@ private fun AddOrderScreenContent(
             onRatingChanged = {
                 rating = if(it == rating) { null } else { it }
             },
-            ratingTitle = stringResource(R.string.order_rating)
+            ratingTitle = stringResource(R.string.order_rating),
+            arrangement = Arrangement.Start
         )
 
         // Notes text field

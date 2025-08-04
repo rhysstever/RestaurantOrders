@@ -122,7 +122,8 @@ private fun AddVisitScreenContent(
             onRatingChanged = {
                 rating = if(it == rating) { null } else { it }
             },
-            ratingTitle = stringResource(R.string.visit_rating)
+            ratingTitle = stringResource(R.string.visit_rating),
+            arrangement = Arrangement.Start
         )
 
         CustomDatePicker(
