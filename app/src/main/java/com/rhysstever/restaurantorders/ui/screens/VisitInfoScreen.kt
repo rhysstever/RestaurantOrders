@@ -3,12 +3,10 @@ package com.rhysstever.restaurantorders.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +27,7 @@ import com.rhysstever.restaurantorders.ui.Order
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
+import com.rhysstever.restaurantorders.ui.components.ButtonFill
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.TopAppBarAction
@@ -71,6 +70,7 @@ fun VisitInfoScreen(
                 onRemoveOrder = { orderToRemove ->
                     restaurantViewModel.OrderContent().removeOrder(orderToRemove)
                 },
+                onAddOrder = { navController.navigate(AddOrder.route) },
                 modifier = Modifier.padding(innerPadding)
             )
         } ?: NoRestaurantSelectedInfo(modifier = Modifier.padding(innerPadding))
@@ -82,6 +82,7 @@ private fun VisitInfoScreenContent(
     visit: Visit,
     onEditVisit: () -> Unit,
     onRemoveOrder: (Order) -> Unit,
+    onAddOrder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -145,26 +146,15 @@ private fun VisitInfoScreenContent(
                 onRemoveOrder = onRemoveOrder
             )
         } else {
-            NoOrdersList()
+            ButtonFill(
+                text = stringResource(R.string.add_an_order),
+                onClick = onAddOrder,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally),
+                leadingIcon = AppIcons.Add
+            )
         }
-    }
-}
-
-@Composable
-private fun NoOrdersList() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AppIcon(icon = AppIcons.Add)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.add_an_order),
-            style = Typography.bodyLarge
-        )
     }
 }
 
@@ -266,6 +256,7 @@ private fun VisitScreenPreview() {
     VisitInfoScreenContent(
         visit = demoUIStateSelected.selectedVisit!!,
         onEditVisit = {},
-        onRemoveOrder = {}
+        onRemoveOrder = {},
+        onAddOrder = {}
     )
 }

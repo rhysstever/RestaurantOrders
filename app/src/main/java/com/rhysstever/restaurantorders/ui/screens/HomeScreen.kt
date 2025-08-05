@@ -2,6 +2,7 @@ package com.rhysstever.restaurantorders.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -88,14 +89,18 @@ private fun HomeScreenContent(
     modifier: Modifier = Modifier,
 ) {
     if(restaurantsList.isEmpty()) {
-        ButtonFill(
-            text = stringResource(R.string.get_started),
-            onClick = onAddRestaurant,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            leadingIcon = AppIcons.Add
-        )
+        Column(
+            modifier = modifier.fillMaxWidth()
+        ) {
+            ButtonFill(
+                text = stringResource(R.string.get_started),
+                onClick = onAddRestaurant,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally),
+                leadingIcon = AppIcons.Add
+            )
+        }
     } else {
         // If there are restaurants to list, show the list
         // Filter the list down to only favorites if the toggle is on

@@ -3,12 +3,10 @@ package com.rhysstever.restaurantorders.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +29,7 @@ import com.rhysstever.restaurantorders.ui.RestaurantUIState
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
 import com.rhysstever.restaurantorders.ui.Visit
 import com.rhysstever.restaurantorders.ui.components.AccessibleIcon
+import com.rhysstever.restaurantorders.ui.components.ButtonFill
 import com.rhysstever.restaurantorders.ui.components.CustomAlertDialog
 import com.rhysstever.restaurantorders.ui.components.EditableText
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
@@ -85,6 +84,7 @@ fun RestaurantInfoScreen(
             onCheckNewRestaurantInput = { restaurantName ->
                 restaurantViewModel.RestaurantContent().checkNewRestaurantInput(restaurantName)
             },
+            onAddVisit = { navController.navigate(AddVisit.route) },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -99,6 +99,7 @@ private fun RestaurantInfoScreenContent(
     onCheckNewRestaurantInput: (String) -> Unit,
     onVisitSelected: (Visit) -> Unit,
     onRemoveVisit: (Visit) -> Unit,
+    onAddVisit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     selectedRestaurant?.let {
@@ -167,7 +168,14 @@ private fun RestaurantInfoScreenContent(
                     onRemoveVisit = onRemoveVisit,
                 )
             } else {
-                NoVisitsList()
+                ButtonFill(
+                    text = stringResource(R.string.add_a_visit),
+                    onClick = onAddVisit,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.CenterHorizontally),
+                    leadingIcon = AppIcons.Add
+                )
             }
         }
     } ?: NoRestaurantSelectedInfo(modifier = modifier)
@@ -186,24 +194,6 @@ fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.no_restaurant_text),
             textAlign = TextAlign.Center,
-            style = Typography.bodyLarge
-        )
-    }
-}
-
-@Composable
-private fun NoVisitsList() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AppIcon(icon = AppIcons.Add)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.add_a_visit),
             style = Typography.bodyLarge
         )
     }
@@ -375,6 +365,7 @@ private fun RestaurantInfoScreenPreview() {
         onCheckNewRestaurantInput = {},
         onVisitSelected = {},
         onRemoveVisit = {},
+        onAddVisit = {},
     )
 }
 
@@ -389,5 +380,6 @@ private fun RestaurantInfoScreenNoSelectionPreview() {
         onCheckNewRestaurantInput = {},
         onVisitSelected = {},
         onRemoveVisit = {},
+        onAddVisit = {},
     )
 }
