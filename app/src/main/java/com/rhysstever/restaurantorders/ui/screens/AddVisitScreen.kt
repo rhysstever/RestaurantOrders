@@ -2,11 +2,13 @@ package com.rhysstever.restaurantorders.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -33,6 +37,7 @@ import com.rhysstever.restaurantorders.ui.components.convertMillisToDate
 import com.rhysstever.restaurantorders.ui.navigation.AddVisit
 import com.rhysstever.restaurantorders.ui.navigation.RestaurantInfo
 import com.rhysstever.restaurantorders.ui.navigation.VisitInfo
+import com.rhysstever.restaurantorders.ui.theme.Typography
 import java.util.Calendar
 
 @Composable
@@ -67,6 +72,24 @@ fun AddVisitScreen(
                 modifier = Modifier.padding(innerPadding)
             )
         } ?: NoSelectedRestaurantMessage(modifier = Modifier.padding(innerPadding))
+    }
+}
+
+@Composable
+fun NoSelectedRestaurantMessage(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.no_restaurant_text),
+            textAlign = TextAlign.Center,
+            style = Typography.bodyLarge
+        )
     }
 }
 

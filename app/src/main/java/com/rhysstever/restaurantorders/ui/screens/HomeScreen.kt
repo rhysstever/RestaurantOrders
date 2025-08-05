@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import com.rhysstever.restaurantorders.R
 import com.rhysstever.restaurantorders.ui.Restaurant
 import com.rhysstever.restaurantorders.ui.RestaurantViewModel
-import com.rhysstever.restaurantorders.ui.components.ButtonText
+import com.rhysstever.restaurantorders.ui.components.ButtonFill
 import com.rhysstever.restaurantorders.ui.components.ScreenScaffold
 import com.rhysstever.restaurantorders.ui.components.TopAppBarAction
 import com.rhysstever.restaurantorders.ui.demoUIState
@@ -80,7 +80,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeScreenContent(
+private fun HomeScreenContent(
     restaurantsList: List<Restaurant>,
     showFavorites: Boolean,
     onRestaurantClicked: (Restaurant) -> Unit,
@@ -88,9 +88,11 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier,
 ) {
     if(restaurantsList.isEmpty()) {
-        NoRestaurantList(
-            onAddRestaurant = onAddRestaurant,
-            modifier = modifier
+        ButtonFill(
+            text = stringResource(R.string.get_started),
+            onClick = onAddRestaurant,
+            modifier = modifier.fillMaxWidth(),
+            leadingIcon = AppIcons.Add
         )
     } else {
         // If there are restaurants to list, show the list
@@ -167,27 +169,6 @@ private fun RestaurantListItem(
             text = restaurant.name,
             style = Typography.headlineSmall,
             modifier = Modifier.padding(8.dp)
-        )
-    }
-}
-
-@Composable
-fun NoRestaurantList(
-    onAddRestaurant: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ButtonText(
-            text = stringResource(R.string.get_started),
-            onClick = onAddRestaurant,
-            modifier = modifier,
-            leadingIcon = AppIcons.Add
         )
     }
 }

@@ -262,7 +262,7 @@ private fun OrderListItem(
 
 @Preview
 @Composable
-fun VisitScreenPreview() {
+private fun VisitScreenPreview() {
     VisitInfoScreenContent(
         visit = demoUIStateSelected.selectedVisit!!,
         onEditVisit = {},

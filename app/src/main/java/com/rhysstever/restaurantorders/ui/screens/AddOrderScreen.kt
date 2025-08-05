@@ -142,24 +142,6 @@ private fun AddOrderScreenContent(
 }
 
 @Composable
-fun NoSelectedRestaurantMessage(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.no_restaurant_text),
-            textAlign = TextAlign.Center,
-            style = Typography.bodyLarge
-        )
-    }
-}
-
-@Composable
 private fun NoSelectedVisitMessage(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
@@ -179,7 +161,7 @@ private fun NoSelectedVisitMessage(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun AddOrderScreenNoSelectionPreview() {
+private fun AddOrderScreenNoSelectionPreview() {
     AddOrderScreenContent(
         isOrderNameInputInvalid = false,
         onNewOrderInput = { },

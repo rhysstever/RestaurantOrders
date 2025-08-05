@@ -91,7 +91,7 @@ fun RestaurantInfoScreen(
 }
 
 @Composable
-fun RestaurantInfoScreenContent(
+private fun RestaurantInfoScreenContent(
     selectedRestaurant: Restaurant?,
     onRenameRestaurant: (String) -> Unit,
     onCheckRestaurantRenameInput: (String) -> Unit,
@@ -171,6 +171,24 @@ fun RestaurantInfoScreenContent(
             }
         }
     } ?: NoRestaurantSelectedInfo(modifier = modifier)
+}
+
+@Composable
+fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.no_restaurant_text),
+            textAlign = TextAlign.Center,
+            style = Typography.bodyLarge
+        )
+    }
 }
 
 @Composable
@@ -311,25 +329,7 @@ private fun VisitListItem(
 }
 
 @Composable
-fun NoRestaurantSelectedInfo(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.no_restaurant_text),
-            textAlign = TextAlign.Center,
-            style = Typography.bodyLarge
-        )
-    }
-}
-
-@Composable
-fun restaurantInfoScreenActionsList(
+private fun restaurantInfoScreenActionsList(
     uiState: RestaurantUIState,
     onAdd: () -> Unit,
     onToggleFavorite: (Restaurant) -> Unit,
@@ -366,7 +366,7 @@ fun restaurantInfoScreenActionsList(
 
 @Preview
 @Composable
-fun RestaurantInfoScreenPreview() {
+private fun RestaurantInfoScreenPreview() {
     RestaurantInfoScreenContent(
         selectedRestaurant = demoUIStateSelected.selectedRestaurant,
         onRenameRestaurant = {},
@@ -380,7 +380,7 @@ fun RestaurantInfoScreenPreview() {
 
 @Preview
 @Composable
-fun RestaurantInfoScreenNoSelectionPreview() {
+private fun RestaurantInfoScreenNoSelectionPreview() {
     RestaurantInfoScreenContent(
         selectedRestaurant = null,
         onRenameRestaurant = {},
