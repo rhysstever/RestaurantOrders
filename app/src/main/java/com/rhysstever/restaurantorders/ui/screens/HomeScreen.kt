@@ -91,7 +91,9 @@ private fun HomeScreenContent(
         ButtonFill(
             text = stringResource(R.string.get_started),
             onClick = onAddRestaurant,
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             leadingIcon = AppIcons.Add
         )
     } else {
